@@ -57,6 +57,4 @@ Every record is tagged. Trades, trigger runs, and observations are all linked to
 
 At the end of each trading day, the agent reviews its history — reading through the trades placed, the reasoning written at the time, and the outcomes — and distils learnings from that review. A learning might propose tightening an entry condition, adjusting a rebalancing cadence, or flagging a pattern the agent kept getting wrong. Proposed changes require your approval; the agent does not edit the Playbook unilaterally.
 
-{% hint style="warning" %}
-**End-of-day distillation is coming soon.** The trade journal and audit trail are live today. The automated end-of-day review loop — where the agent reads its history and surfaces proposed learnings — is actively being built.
-{% endhint %}
+> **Warning:** **End-of-day distillation is coming soon.** The trade journal and audit trail are live today. The automated end-of-day review loop — where the agent reads its history and surfaces proposed learnings — is actively being built.

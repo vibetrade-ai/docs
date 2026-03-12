@@ -1,8 +1,6 @@
 # Skills
 
-{% hint style="warning" %}
-**Coming soon.** Skills are actively being built. The architecture is designed for them — the Playbook context window already supports additional instruction modules.
-{% endhint %}
+> **Warning:** **Coming soon.** Skills are actively being built. The architecture is designed for them — the Playbook context window already supports additional instruction modules.
 
 > Reusable instruction modules that personalise how the agent behaves for specific tasks — loaded when relevant, ignored when not.
 

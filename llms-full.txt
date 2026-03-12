@@ -3,7 +3,7 @@
 > Vibe Trade is an agentic trading harness. Six primitives give an LLM everything it needs to trade autonomously on your behalf — with live market data, automated monitoring, a structured permission system, and a compounding memory of every decision it makes.
 
 Source: https://docs.vibetrade.app
-Repository: https://github.com/YOUR_ORG/vibe-trade-site
+Repository: https://github.com/vibetrade-ai/docs
 
 ---
 

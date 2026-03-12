@@ -58,9 +58,7 @@ Every trigger has the same shape. Here is a real stop-loss trigger from a live i
 | `hard_order` | Trade executes immediately in pure code — no reasoning, no approval queue | No | Stop-losses, price targets, EOD hard closes |
 | `reasoning_job` | Agent wakes up with trigger context and Playbook loaded, reasons, may queue approvals | Yes | Morning scans, position monitors, re-entry decisions |
 
-{% hint style="info" %}
-**hard\_order vs reasoning\_job:** A stop-loss that fires a `reasoning_job` will wait for the agent to wake up, reason, and queue an approval. A stop-loss that fires a `hard_order` executes the moment the price condition is met. For hard guardrails, use `hard_order`. For anything requiring judgement, use `reasoning_job`.
-{% endhint %}
+> **Note:** **hard\_order vs reasoning\_job:** A stop-loss that fires a `reasoning_job` will wait for the agent to wake up, reason, and queue an approval. A stop-loss that fires a `hard_order` executes the moment the price condition is met. For hard guardrails, use `hard_order`. For anything requiring judgement, use `reasoning_job`.
 
 ---
 

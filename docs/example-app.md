@@ -55,6 +55,4 @@ The app runs entirely on your machine. Your Anthropic API key, your Dhan credent
 
 ---
 
-{% hint style="info" %}
-**Start with chat before automation.** The example app is most useful as a live conversation partner first. Ask the agent to look at your positions, fetch a quote, or explain a stock's technicals. Once you're comfortable with how it reasons and what tools it has, you'll be better placed to give it a Playbook and let it run autonomously.
-{% endhint %}
+> **Note:** **Start with chat before automation.** The example app is most useful as a live conversation partner first. Ask the agent to look at your positions, fetch a quote, or explain a stock's technicals. Once you're comfortable with how it reasons and what tools it has, you'll be better placed to give it a Playbook and let it run autonomously.

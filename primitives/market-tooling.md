@@ -10,9 +10,7 @@ An LLM's training data has a cutoff. It doesn't know today's price of SBIN, whet
 
 Vibe Trade ships with first-class support for **Dhan**. Additional brokers are on the roadmap. The API endpoints, request structures, and parsing logic are already handled. The agent calls plain-English actions; the primitive handles the broker-specific implementation.
 
-{% hint style="info" %}
-**Why maintained integrations matter:** Broker APIs change. Dhan moved from V1 to V2 — naive code generation, even from strong models, will sometimes call the wrong endpoint. Market Tooling maintains these integrations so tool calls don't silently fail.
-{% endhint %}
+> **Note:** **Why maintained integrations matter:** Broker APIs change. Dhan moved from V1 to V2 — naive code generation, even from strong models, will sometimes call the wrong endpoint. Market Tooling maintains these integrations so tool calls don't silently fail.
 
 | Tool | What it does | Approval required |
 |------|-------------|:-----------------:|
@@ -50,6 +48,4 @@ Vibe Trade ships with first-class support for **Dhan**. Additional brokers are o
 
 The built-in tools cover the most common data needs, but every trader has their own edge — a proprietary screener, an internal backtesting engine, a Bloomberg terminal. Vibe Trade will support registering custom tools by defining an endpoint, credentials, and a capability description the agent can read.
 
-{% hint style="warning" %}
-**Coming soon.** Custom tool registration is on the roadmap. Once available, any data source or capability you can describe can be added to the agent's toolkit.
-{% endhint %}
+> **Warning:** **Coming soon.** Custom tool registration is on the roadmap. Once available, any data source or capability you can describe can be added to the agent's toolkit.
