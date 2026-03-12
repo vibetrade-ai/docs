@@ -8,7 +8,7 @@
 - [What is Vibe Trade?](https://raw.githubusercontent.com/YOUR_ORG/vibe-trade-site/main/docs/what-is-vibe-trade.md): The backend for agentic trading — what it gives you and why
 - [The Harness](https://raw.githubusercontent.com/YOUR_ORG/vibe-trade-site/main/docs/the-harness.md): How the primitives wrap around the LLM core reasoner
 - [How Primitives Connect](https://raw.githubusercontent.com/YOUR_ORG/vibe-trade-site/main/docs/how-primitives-connect.md): The runtime loop from Heartbeat tick to executed trade
-- [Example App](https://raw.githubusercontent.com/YOUR_ORG/vibe-trade-site/main/docs/example-app.md): Local chat app installable via npm — experiences all primitives in action
+- [Vibe Trade App](https://raw.githubusercontent.com/YOUR_ORG/vibe-trade-site/main/docs/example-app.md): Local chat app installable via npm — experiences all primitives in action
 
 ## Primitives
 

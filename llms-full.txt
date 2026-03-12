@@ -134,7 +134,7 @@ Heartbeat → Market snapshot → Trigger fires → Playbook loaded
 
 ---
 
-# Example App
+# Vibe Trade App
 
 A local chat interface that puts all six primitives in your hands — the fastest way to understand what the harness actually does.
 
