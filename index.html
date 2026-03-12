@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vibe Trade — Documentation</title>
+<meta name="description" content="Vibe Trade is an agentic trading harness. Six primitives — Market Tooling, Heartbeat, Triggers, Permissions, Playbooks, and Learnings — give an LLM everything it needs to trade on your behalf, with nothing left to chance.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0a0a0b;
+  --surface:  #111113;
+  --surface-2:#18181b;
+  --surface-3:#1f1f23;
+  --border:   #27272a;
+  --border-subtle: #1c1c1f;
+
+  --text:       #e4e4e7;
+  --text-muted: #71717a;
+  --text-faint: #3f3f46;
+
+  --accent:       #4DFF4D;
+  --accent-dim:   rgba(77,255,77,.08);
+  --accent-mid:   rgba(77,255,77,.14);
+  --accent-border:rgba(77,255,77,.22);
+
+  --green:        #4DFF4D;
+  --green-dim:    rgba(77,255,77,.08);
+  --blue:         #60a5fa;
+  --blue-dim:     rgba(96,165,250,.1);
+  --yellow:       #fbbf24;
+  --yellow-dim:   rgba(251,191,36,.1);
+  --red:          #f87171;
+  --red-dim:      rgba(248,113,113,.1);
+  --purple:       #a78bfa;
+  --purple-dim:   rgba(167,139,250,.1);
+
+  --sidebar-w:    272px;
+  --font-body:    'Geist', sans-serif;
+  --font-serif:   'Instrument Serif', serif;
+  --font-mono:    'JetBrains Mono', monospace;
+  --radius:       10px;
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+html { scroll-behavior:smooth }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── LAYOUT ──────────────────────────────── */
+.layout { display:flex; min-height:100vh }
+
+/* ─── SIDEBAR ─────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+}
+.sidebar::-webkit-scrollbar { width: 3px }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius:2px }
+
+.sidebar-logo {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-mark {
+  width: 28px; height: 28px;
+  background: var(--accent);
+  border-radius: 7px;
+  display: flex; align-items:center; justify-content:center;
+  font-size: 11px; font-weight: 700;
+  color: #000;
+  flex-shrink: 0;
+  letter-spacing: -.02em;
+  box-shadow: 0 0 0 3px var(--accent-dim), inset 0 1px 0 rgba(255,255,255,.15);
+}
+.logo-text { font-size: 14px; font-weight: 600; color: var(--text); letter-spacing: -.02em }
+.logo-badge {
+  font-size: 10px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
+  padding: 1px 7px;
+  border-radius: 20px;
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.sidebar-section { padding: 14px 10px 4px }
+.sidebar-label {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--text-faint);
+  padding: 0 8px; margin-bottom: 3px;
+}
+.nav-link {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 8px;
+  border-radius: 7px;
+  text-decoration: none;
+  color: var(--text-muted);
+  font-size: 13.5px;
+  transition: all .12s;
+  line-height: 1.4;
+}
+.nav-link:hover { color: var(--text); background: var(--surface-2); text-decoration: none }
+.nav-link.active { color: var(--accent); background: var(--accent-dim); font-weight: 500 }
+.nav-link .icon { width:15px; flex-shrink:0; opacity:.45; font-size:11px; text-align:center }
+.nav-link.active .icon { opacity: 1 }
+.nav-link.soon { opacity: .4; pointer-events: none }
+.nav-link.soon::after {
+  content: 'soon';
+  font-size: 9px; font-family: var(--font-mono);
+  background: var(--surface-2); border: 1px solid var(--border);
+  color: var(--text-faint); padding: 0 5px; border-radius: 3px; margin-left:auto;
+}
+
+/* ─── MAIN ────────────────────────────────── */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  max-width: 920px;
+  padding: 0 64px 140px;
+}
+
+.topbar {
+  position: sticky; top: 0;
+  background: rgba(10,10,11,.88);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  padding: 11px 0;
+  margin: 0 -64px;
+  padding-left: 64px; padding-right: 64px;
+  z-index: 50;
+  display: flex; align-items:center; justify-content:space-between;
+}
+.topbar-bc { font-size: 12px; color: var(--text-faint); font-family: var(--font-mono) }
+.topbar-bc .sep { margin: 0 6px; color: var(--border) }
+.topbar-right { display:flex; align-items:center; gap:8px }
+
+/* ─── BADGES ──────────────────────────────── */
+.badge {
+  font-size: 11px; font-family: var(--font-mono);
+  padding: 2px 8px; border-radius: 20px;
+  font-weight: 500; white-space: nowrap;
+}
+.b-green  { background: var(--accent-dim);   color: var(--accent);  border: 1px solid var(--accent-border) }
+.b-blue   { background: var(--blue-dim);     color: var(--blue);    border: 1px solid rgba(96,165,250,.25) }
+.b-yellow { background: var(--yellow-dim);   color: var(--yellow);  border: 1px solid rgba(251,191,36,.25) }
+.b-red    { background: var(--red-dim);      color: var(--red);     border: 1px solid rgba(248,113,113,.25) }
+.b-purple { background: var(--purple-dim);   color: var(--purple);  border: 1px solid rgba(167,139,250,.25) }
+.b-muted  { background: var(--surface-2);    color: var(--text-faint); border: 1px solid var(--border) }
+.b-orange { background: rgba(251,191,36,.08); color: var(--yellow);  border: 1px solid rgba(251,191,36,.2) }
+
+/* ─── SECTIONS ────────────────────────────── */
+.doc-section { padding-top: 72px }
+.doc-section + .doc-section { border-top: 1px solid var(--border); margin-top: 16px }
+
+/* ─── TYPOGRAPHY ──────────────────────────── */
+h1 {
+  font-family: var(--font-serif);
+  font-size: 44px; font-weight: 400;
+  color: var(--text);
+  line-height: 1.12; letter-spacing: -.02em;
+  margin-bottom: 18px;
+}
+h1 em { font-style: italic; color: var(--accent) }
+h2 {
+  font-family: var(--font-serif);
+  font-size: 30px; font-weight: 400;
+  color: var(--text);
+  line-height: 1.2; letter-spacing: -.015em;
+  margin-top: 48px; margin-bottom: 10px;
+}
+h3 { font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: -.01em; margin-top: 32px; margin-bottom: 8px }
+h4 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--text-muted); margin-top: 24px; margin-bottom: 6px }
+p { color: var(--text-muted); margin-bottom: 16px; font-size: 15px; line-height: 1.75 }
+p strong { color: var(--text); font-weight: 500 }
+p em { color: var(--text); font-style: italic }
+a { color: var(--accent); text-decoration: none }
+a:hover { text-decoration: underline }
+
+.tagline {
+  font-size: 16px; color: var(--text-muted);
+  border-left: 2.5px solid var(--accent);
+  padding-left: 16px; margin-bottom: 28px;
+  font-style: italic;
+}
+
+ul, ol { padding-left: 20px; margin-bottom: 16px }
+li { color: var(--text-muted); margin-bottom: 5px; line-height: 1.7 }
+li strong { color: var(--text); font-weight: 500 }
+code {
+  font-family: var(--font-mono); font-size: 12.5px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  padding: 1px 6px; border-radius: 5px; color: var(--text);
+}
+hr { border: none; border-top: 1px solid var(--border); margin: 52px 0 }
+
+/* ─── CODE BLOCKS ─────────────────────────── */
+.code-block {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: var(--radius);
+  margin: 22px 0; overflow: hidden;
+}
+.code-hdr {
+  display: flex; align-items:center; justify-content:space-between;
+  padding: 9px 16px;
+  border-bottom: 1px solid #2e2e2e;
+  font-family: var(--font-mono); font-size: 11px; color: #666;
+}
+.code-hdr-lang { color: #888 }
+.code-block pre {
+  padding: 18px; overflow-x: auto;
+  font-family: var(--font-mono); font-size: 12.5px;
+  line-height: 1.65; color: #d4d4d4;
+}
+.kw  { color: #c792ea }
+.str { color: #a6e22e }
+.num { color: #f78c6c }
+.cmt { color: #5c6773; font-style: italic }
+.key { color: #79b8ff }
+
+/* Terminal/shell style */
+.code-block.terminal { background: #0f1117 }
+.code-block.terminal pre { color: #e2e8f0 }
+.code-block.terminal .prompt { color: #4DFF4D; user-select:none }
+.code-block.terminal .cmd { color: #fff }
+.code-block.terminal .out { color: #6b7280 }
+.code-block.terminal .success { color: #4DFF4D }
+.code-block.terminal .dim { color: #374151 }
+
+/* ─── CALLOUTS ────────────────────────────── */
+.callout {
+  border-radius: var(--radius);
+  padding: 13px 16px; margin: 22px 0;
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.callout-icon { flex-shrink:0; font-size:13px; margin-top:3px }
+.callout p { margin:0; font-size: 14px; line-height: 1.6 }
+.callout p strong { color: inherit }
+.c-note { background:var(--blue-dim);   border:1px solid rgba(96,165,250,.2);   color:var(--blue)   }
+.c-tip  { background:var(--accent-dim); border:1px solid var(--accent-border); color:var(--accent) }
+.c-warn { background:var(--yellow-dim); border:1px solid rgba(251,191,36,.2);   color:var(--yellow) }
+.c-info { background:var(--accent-dim); border:1px solid var(--accent-border); color:var(--accent) }
+.c-soon { background:var(--purple-dim); border:1px solid rgba(167,139,250,.2);  color:var(--purple) }
+
+/* ─── TABLES ──────────────────────────────── */
+.table-wrap {
+  overflow-x: auto; margin: 22px 0;
+  border: 1px solid var(--border); border-radius: var(--radius);
+}
+table { width:100%; border-collapse:collapse; font-size:13.5px }
+thead th {
+  background: var(--surface-2);
+  padding: 9px 16px; text-align:left;
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .07em;
+  color: var(--text-faint); border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+tbody td {
+  padding: 10px 16px; color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  vertical-align: top; line-height: 1.55;
+}
+tbody tr:last-child td { border-bottom: none }
+tbody tr:hover td { background: var(--surface-2) }
+tbody td:first-child {
+  color: var(--text); font-weight: 500;
+  font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap;
+}
+td.plain:first-child { font-family:var(--font-body); font-size:13.5px; white-space:normal }
+
+/* ─── CARDS ───────────────────────────────── */
+.card-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:22px 0 }
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.card:hover { border-color: var(--accent-border); box-shadow: 0 2px 16px rgba(77,255,77,.06) }
+.card-icon { font-size: 18px; margin-bottom: 10px }
+.card h4 { font-size:13px; font-weight:600; color:var(--text); text-transform:none; letter-spacing:-.01em; margin:0 0 5px }
+.card p { font-size: 13px; color: var(--text-muted); margin:0; line-height:1.5 }
+
+/* ─── SECTION HEADER ──────────────────────── */
+.sec-hdr { display:flex; align-items:center; gap:10px; margin-bottom:4px }
+.sec-num {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text-faint); background: var(--surface-2);
+  border: 1px solid var(--border); padding: 2px 8px; border-radius: 20px;
+}
+
+/* ─── DIAGRAM ─────────────────────────────── */
+.diagram {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px 24px; margin: 24px 0;
+  position: relative; overflow: hidden;
+}
+.diagram::before {
+  content: '';
+  position: absolute; inset:0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(77,255,77,.04) 0%, transparent 60%);
+  pointer-events: none;
+}
+.diagram-title {
+  font-size: 11px; font-family: var(--font-mono);
+  color: var(--text-faint); text-transform: uppercase;
+  letter-spacing: .08em; margin-bottom: 20px; text-align:center;
+}
+.flow { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:0; row-gap:10px }
+.fn {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 9px 14px;
+  font-size: 12px; font-family: var(--font-mono);
+  color: var(--text); text-align:center; white-space:nowrap;
+}
+.fn .sub { display:block; font-size:10px; color:var(--text-faint); margin-top:2px; font-family:var(--font-body); font-style:italic }
+.fn.ac { border-color:var(--accent-border); color:var(--accent); background:var(--accent-dim) }
+.fn.gr { border-color:rgba(77,255,77,.25);  color:var(--green);  background:var(--green-dim) }
+.fn.bl { border-color:rgba(96,165,250,.25); color:var(--blue);   background:var(--blue-dim) }
+.fn.yw { border-color:rgba(251,191,36,.25); color:var(--yellow); background:var(--yellow-dim) }
+.fn.rd { border-color:rgba(248,113,113,.25);color:var(--red);    background:var(--red-dim) }
+.fa { color:var(--text-faint); font-size:13px; padding:0 7px; flex-shrink:0 }
+
+/* ─── CONSENT LEVELS ─────────────────────── */
+.consent-stack {
+  display:flex; flex-direction:column;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  overflow:hidden; margin:22px 0;
+}
+.cl {
+  display:flex; gap:16px; padding:16px 20px;
+  background:var(--surface); border-bottom:1px solid var(--border);
+}
+.cl:last-child { border-bottom:none }
+.cl-dot { width:8px; height:8px; border-radius:50%; margin-top:8px; flex-shrink:0 }
+.cl h4 { font-size:13.5px; font-weight:600; color:var(--text); text-transform:none; letter-spacing:-.01em; margin:0 0 4px }
+.cl p { font-size:13px; margin:0; line-height:1.55 }
+
+/* ─── TICK STEPS ──────────────────────────── */
+.tick-steps { display:flex; flex-direction:column; margin:22px 0 }
+.ts { display:flex; gap:16px; padding:14px 0; border-bottom:1px solid var(--border) }
+.ts:last-child { border-bottom:none }
+.ts-num {
+  width:26px; height:26px; border-radius:50%;
+  background: var(--accent-dim); border:1px solid var(--accent-border);
+  font-family:var(--font-mono); font-size:11px; color:var(--accent);
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; margin-top:2px; font-weight:600;
+}
+.ts h4 { font-size:13.5px; font-weight:600; color:var(--text); text-transform:none; letter-spacing:-.01em; margin:0 0 4px }
+.ts p { font-size:13px; margin:0; line-height:1.55 }
+
+/* ─── APPROVAL CARD ───────────────────────── */
+.approval-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow:hidden; margin:22px 0;
+  box-shadow: 0 2px 12px rgba(0,0,0,.3);
+}
+.approval-card-header {
+  padding: 11px 16px; border-bottom: 1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+  background: var(--surface-2);
+}
+.approval-card-header .label { font-family:var(--font-mono); font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.06em }
+.approval-trade { display:flex; gap:8px; align-items:center; margin-bottom:14px; flex-wrap:wrap }
+.approval-reasoning {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px;
+  font-size: 13px; color: var(--text-muted); line-height: 1.7;
+  margin-bottom: 14px;
+}
+.approval-reasoning strong { color: var(--text) }
+.approval-card-body { padding: 16px }
+.approval-actions { display:flex; gap:8px }
+.btn-approve {
+  background: var(--accent-dim); border: 1px solid var(--accent-border);
+  color: var(--accent); font-size:13px; font-weight:600;
+  padding: 7px 20px; border-radius: 7px; cursor:pointer; font-family:var(--font-body);
+  transition: background .12s;
+}
+.btn-approve:hover { background: var(--accent-mid) }
+.btn-reject {
+  background: var(--red-dim); border: 1px solid rgba(248,113,113,.25);
+  color: var(--red); font-size:13px; font-weight:600;
+  padding: 7px 20px; border-radius: 7px; cursor:pointer; font-family:var(--font-body);
+}
+
+/* ─── FLOW STEPS ──────────────────────────── */
+.flow-steps-list { display:flex; flex-direction:column; gap:8px; margin:22px 0 }
+.flow-step {
+  display:flex; gap:14px; align-items:flex-start;
+  padding: 13px 16px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 9px;
+}
+.flow-step-lbl {
+  font-family: var(--font-mono); font-size:10px;
+  color: var(--text-faint); min-width:94px; margin-top:2px; flex-shrink:0;
+  text-transform:uppercase; letter-spacing:.06em;
+}
+.flow-step-title { font-size:13px; font-weight:600; color:var(--text); margin-bottom:2px }
+.flow-step-desc { font-size:12.5px; color:var(--text-muted); line-height:1.55 }
+
+/* ─── SKILL FILE ──────────────────────────── */
+.skill-file {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow:hidden; margin:22px 0;
+}
+.skill-file-tab {
+  display:flex; align-items:center; gap:8px;
+  padding: 9px 16px; border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.skill-file-tab .dot { width:8px; height:8px; border-radius:50%; background:var(--purple); opacity:.7 }
+.skill-file-tab span { font-family:var(--font-mono); font-size:11px; color:var(--text-muted) }
+.skill-file pre {
+  padding: 16px; font-family:var(--font-mono);
+  font-size: 12.5px; line-height: 1.65; color: var(--text); overflow-x:auto;
+}
+
+/* ─── EXAMPLE APP (install section) ──────── */
+.install-card {
+  background: #0f1117;
+  border: 1px solid #1e2535;
+  border-radius: var(--radius);
+  overflow: hidden; margin: 24px 0;
+  box-shadow: 0 4px 24px rgba(0,0,0,.15);
+}
+.install-card-hdr {
+  display: flex; align-items:center; justify-content:space-between;
+  padding: 10px 16px; border-bottom: 1px solid #1e2535;
+}
+.install-card-hdr span { font-family:var(--font-mono); font-size:11px; color:#4b5563; text-transform:uppercase; letter-spacing:.07em }
+.install-card-dots { display:flex; gap:6px }
+.dot-r { width:10px; height:10px; border-radius:50%; background:#3a1a1a }
+.dot-y { width:10px; height:10px; border-radius:50%; background:#3a3010 }
+.dot-g { width:10px; height:10px; border-radius:50%; background:#0d2b0d }
+.install-card pre {
+  padding: 18px 20px;
+  font-family: var(--font-mono); font-size: 13px; line-height: 2;
+}
+.p-dim    { color: #374151 }
+.p-cmd    { color: #f9fafb }
+.p-green  { color: #4DFF4D }
+.p-yellow { color: #fbbf24 }
+.p-blue   { color: #93c5fd }
+.p-prompt { color: #4DFF4D; user-select:none }
+
+.feature-strip {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 10px; margin: 22px 0;
+}
+.fs {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 9px; padding: 14px 16px;
+  transition: border-color .12s;
+}
+.fs:hover { border-color: var(--accent-border) }
+.fs-icon { font-size: 16px; margin-bottom:6px }
+.fs h4 { font-size:12.5px; font-weight:600; color:var(--text); text-transform:none; letter-spacing:-.01em; margin:0 0 3px }
+.fs p { font-size:12px; color:var(--text-muted); margin:0; line-height:1.5 }
+
+::-webkit-scrollbar { width:5px; height:5px }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px }
+
+@media(max-width:900px) {
+  .sidebar { display:none }
+  .main { margin-left:0; padding:0 24px 80px }
+  .card-grid, .feature-strip { grid-template-columns:1fr }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ════════════════════════════════════
+     SIDEBAR
+════════════════════════════════════ -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">VT</div>
+    <span class="logo-text">Vibe Trade</span>
+    <span class="logo-badge">docs</span>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-label">Getting Started</div>
+    <a href="#introduction"            class="nav-link active"><span class="icon">◈</span>Introduction</a>
+    <a href="#what-is-vibe-trade"      class="nav-link"><span class="icon">◉</span>What is Vibe Trade?</a>
+    <a href="#the-harness"             class="nav-link"><span class="icon">◎</span>The Harness</a>
+    <a href="#how-primitives-connect"  class="nav-link"><span class="icon">⬡</span>How Primitives Connect</a>
+    <a href="#example-app"             class="nav-link"><span class="icon">⌨</span>Example App</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-label">Primitives</div>
+    <a href="#market-tooling"  class="nav-link"><span class="icon">⬡</span>Market Tooling</a>
+    <a href="#heartbeat"       class="nav-link"><span class="icon">♥</span>Heartbeat</a>
+    <a href="#triggers"        class="nav-link"><span class="icon">◷</span>Triggers</a>
+    <a href="#permissions"     class="nav-link"><span class="icon">◎</span>Permissions</a>
+    <a href="#playbooks"       class="nav-link"><span class="icon">◈</span>Playbooks</a>
+    <a href="#learnings"       class="nav-link"><span class="icon">◉</span>Learnings</a>
+    <a href="#skills"          class="nav-link soon"><span class="icon">✦</span>Skills</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-label">Reference</div>
+    <a href="#primitives-at-a-glance"  class="nav-link"><span class="icon">≡</span>Primitives at a Glance</a>
+    <a href="#data-flow"               class="nav-link"><span class="icon">→</span>Full Data Flow</a>
+  </div>
+</nav>
+
+<!-- ════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════ -->
+<main class="main">
+<div class="topbar">
+  <div class="topbar-bc">vibe-trade <span class="sep">/</span> docs</div>
+  <div class="topbar-right">
+    <span class="badge b-green">v0.1</span>
+    <span class="badge b-muted">NSE · Dhan</span>
+  </div>
+</div>
+
+<!-- ─── INTRODUCTION ─────────────────────── -->
+<section class="doc-section" id="introduction">
+  <h1>The agentic harness for<br><em>autonomous trading</em></h1>
+  <p class="tagline">Six primitives that give an LLM everything it needs to trade on your behalf — and nothing more than you've authorised.</p>
+
+  <p>Vibe Trade is a <strong>harness</strong> — a structured environment that lets a large language model reason about markets, act on your behalf, and accumulate judgement over time, without you having to babysit it.</p>
+
+  <p>The core insight is that LLMs are already capable of sophisticated market reasoning. What they lack is <strong>infrastructure</strong>: a live connection to the market, a sense of time, a memory that persists across sessions, a monitoring loop that doesn't cost a fortune, and a trust model that ensures nothing happens without your consent. Vibe Trade supplies all of it.</p>
+
+  <p>The result is a trading agent you can give a strategy to in plain English — and then leave alone.</p>
+</section>
+
+<!-- ─── WHAT IS VIBE TRADE ────────────────── -->
+<section class="doc-section" id="what-is-vibe-trade">
+  <h2>What is Vibe Trade?</h2>
+
+  <p>Vibe Trade is the backend for agentic trading. Just as infrastructure platforms give developers a database, auth, and storage without making them build those systems from scratch, Vibe Trade gives an AI trading agent a live market connection, a scheduling system, a strategy memory, an audit trail, a monitoring loop, and a permission gate — without you having to build any of it.</p>
+
+  <p>You describe what you want to trade and why. The agent figures out how. The harness makes sure it runs reliably, accountably, and only as far as you've permitted.</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon">🔌</div>
+      <h4>Live market awareness</h4>
+      <p>20 built-in tools covering broker execution, real-time quotes, candles, indicators, fundamentals, ETFs, news, and index data. The agent never reasons from stale training data.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🧠</div>
+      <h4>Strategy memory that persists</h4>
+      <p>The agent doesn't start from zero each session. A written Playbook anchors every decision it makes — consistent rules, consistent judgement, isolated P&amp;L.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">⏱️</div>
+      <h4>Runs on its own schedule</h4>
+      <p>Set a trigger once. The agent wakes itself up, reasons from live data, and acts — without you being present.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔒</div>
+      <h4>No trade without your consent</h4>
+      <p>A code-level approval gate sits in front of every execution. You define what consent looks like at each level of autonomy.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── THE HARNESS ───────────────────────── -->
+<section class="doc-section" id="the-harness">
+  <h2>The Harness</h2>
+
+  <p>The word "harness" is deliberate. A harness doesn't replace the horse — it channels its capability into something controllable, directed, and safe. Vibe Trade does the same for an LLM.</p>
+
+  <p>An LLM on its own is powerful but directionless for trading. It has no state, no time, no broker connection, no memory of what it did yesterday, and no guardrails on what it can do next. The harness provides all of that as a set of interlocking primitives. Remove any one of them and the agent either can't act, or acts without accountability.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">The Vibe Trade Harness — primitives around the core reasoner</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;row-gap:12px">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="fn bl" style="min-width:136px"><strong>Market Tooling</strong><span class="sub">live data + broker</span></div>
+        <div class="fn gr" style="min-width:136px"><strong>Heartbeat</strong><span class="sub">monitoring loop</span></div>
+        <div class="fn yw" style="min-width:136px"><strong>Triggers</strong><span class="sub">when to act</span></div>
+      </div>
+      <div class="fn ac" style="min-width:100px;padding:22px 18px;font-size:15px"><strong>LLM</strong><span class="sub">core reasoner</span></div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="fn rd" style="min-width:136px"><strong>Permissions</strong><span class="sub">approval gate</span></div>
+        <div class="fn yw" style="min-width:136px"><strong>Playbooks</strong><span class="sub">strategy + thesis</span></div>
+        <div class="fn"    style="min-width:136px"><strong>Learnings</strong><span class="sub">audit + memory</span></div>
+      </div>
+    </div>
+    <p style="text-align:center;margin:20px 0 0;font-size:12px;color:var(--text-faint);font-family:var(--font-mono)">The LLM reasons. The harness acts, remembers, and governs.</p>
+  </div>
+</section>
+
+<!-- ─── HOW PRIMITIVES CONNECT ───────────── -->
+<section class="doc-section" id="how-primitives-connect">
+  <h2>How Primitives Connect</h2>
+
+  <p>The six primitives aren't independent modules — they compose into a single runtime loop. Here is the path for an autonomous Playbook run:</p>
+
+  <div class="diagram">
+    <div class="diagram-title">Runtime loop — trigger to executed trade</div>
+    <div class="flow">
+      <div class="fn gr"><strong>Heartbeat</strong><span class="sub">tick every 30s</span></div>
+      <div class="fa">→</div>
+      <div class="fn bl"><strong>Market snapshot</strong><span class="sub">watched symbols</span></div>
+      <div class="fa">→</div>
+      <div class="fn yw"><strong>Trigger fires</strong><span class="sub">condition met</span></div>
+      <div class="fa">→</div>
+      <div class="fn yw"><strong>Playbook loaded</strong><span class="sub">thesis in context</span></div>
+      <div class="fa">→</div>
+      <div class="fn ac"><strong>LLM reasons</strong><span class="sub">tools called</span></div>
+      <div class="fa">→</div>
+      <div class="fn rd"><strong>Permissions gate</strong><span class="sub">approve / reject</span></div>
+      <div class="fa">→</div>
+      <div class="fn gr"><strong>Trade placed</strong><span class="sub">broker executes</span></div>
+    </div>
+    <p style="text-align:center;margin:16px 0 0;font-size:11px;color:var(--text-faint);font-family:var(--font-mono)">Learnings records every step — including runs where no trade is placed.</p>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Primitive</th><th>Role in the loop</th><th>Without it</th></tr></thead>
+      <tbody>
+        <tr><td>Market Tooling</td><td>Gives the agent live data and the ability to execute</td><td>Agent reasons in the dark; can't act on the market</td></tr>
+        <tr><td>Heartbeat</td><td>Monitors conditions cheaply; wakes the agent only when something fires</td><td>Either runs 24/7 (expensive) or misses time-sensitive triggers</td></tr>
+        <tr><td>Triggers</td><td>Defines when and why the agent wakes up — time, price, or event</td><td>Agent runs once and is forgotten; nothing is automated</td></tr>
+        <tr><td>Permissions</td><td>Code-level gate before every trade; records every decision</td><td>Agent acts without consent; no audit trail</td></tr>
+        <tr><td>Playbooks</td><td>Loads the strategy document as context on every agent run</td><td>Every session starts from zero; no consistent identity or rules</td></tr>
+        <tr><td>Learnings</td><td>Logs every action with reasoning; compounds edge over time</td><td>Agent makes the same mistakes indefinitely; no accountability</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ─── EXAMPLE APP ───────────────────────── -->
+<section class="doc-section" id="example-app">
+  <div class="sec-hdr"><span class="badge b-green">example app</span></div>
+  <h2>The Example App</h2>
+  <p class="tagline">A local chat interface that puts all six primitives in your hands — the fastest way to understand what the harness actually does.</p>
+
+  <p>The Vibe Trade example app is a fully-featured chat application that connects to the same primitives described in these docs. It's the reference implementation: every concept here — Heartbeat, Triggers, Permissions, Playbooks, Learnings — is wired up and ready to use. Install it, connect your Dhan account, and the harness is live.</p>
+
+  <p>It's designed as an <strong>experience</strong> first. You can talk to the agent, watch it reason in real time, approve or reject its trade suggestions, create Playbooks through conversation, and inspect everything it has done and why. It's also the foundation for building your own implementation on top of the primitives.</p>
+
+  <h3>Install and run</h3>
+
+  <div class="install-card">
+    <div class="install-card-hdr">
+      <div class="install-card-dots">
+        <div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div>
+      </div>
+      <span>terminal</span>
+    </div>
+    <pre>
+<span class="p-dim"># Install globally via npm</span>
+<span class="p-prompt">$</span> <span class="p-cmd">npm install -g vibe-trade</span>
+
+<span class="p-dim"># Run the app</span>
+<span class="p-prompt">$</span> <span class="p-cmd">vibe-trade start</span>
+
+<span class="p-green">✓</span> <span class="p-cmd">Vibe Trade running at</span> <span class="p-blue">http://localhost:3000</span>
+<span class="p-green">✓</span> <span class="p-cmd">Heartbeat loop</span>      <span class="p-yellow">waiting for market open</span>
+<span class="p-green">✓</span> <span class="p-cmd">Storage</span>             <span class="p-cmd">~/.vibe-trade/db.json</span>
+<span class="p-dim">  Connect your Dhan account at http://localhost:3000/settings</span></pre>
+  </div>
+
+  <p>The app runs entirely on your machine. Your Anthropic API key, your Dhan credentials, your trade history, your Playbooks — none of it leaves your local environment.</p>
+
+  <h3>What you can do with it</h3>
+
+  <div class="feature-strip">
+    <div class="fs">
+      <div class="fs-icon">💬</div>
+      <h4>Talk to your portfolio</h4>
+      <p>Ask the agent what's in your positions, how they're performing, what the market is doing. It has live access to everything.</p>
+    </div>
+    <div class="fs">
+      <div class="fs-icon">📋</div>
+      <h4>Create Playbooks in chat</h4>
+      <p>Describe your strategy. The agent helps you shape it into a structured Playbook document, then runs it autonomously from that point forward.</p>
+    </div>
+    <div class="fs">
+      <div class="fs-icon">⚡</div>
+      <h4>Watch triggers fire</h4>
+      <p>The Heartbeat loop runs in the background. When a condition fires, you see it — and if it's a reasoning job, you see the agent's full thought process.</p>
+    </div>
+    <div class="fs">
+      <div class="fs-icon">✅</div>
+      <h4>Approve trades in real time</h4>
+      <p>Every trade recommendation arrives as a structured approval card with full reasoning. One click to approve or reject.</p>
+    </div>
+    <div class="fs">
+      <div class="fs-icon">📂</div>
+      <h4>Review the trade journal</h4>
+      <p>Every decision, every reasoning trace, every outcome — logged and browsable. Filter by Playbook or by time.</p>
+    </div>
+    <div class="fs">
+      <div class="fs-icon">🔧</div>
+      <h4>Configure without code</h4>
+      <p>Triggers, Playbooks, and permissions are all managed through the UI or through conversation. No config files to edit.</p>
+    </div>
+  </div>
+
+  <h3>Requirements</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Dependency</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Node.js ≥ 18</td><td>The app runs as a local Node process</td></tr>
+        <tr><td>Anthropic API key</td><td>Powers the agent — Claude Sonnet for reasoning jobs, Haiku for condition evaluation</td></tr>
+        <tr><td>Dhan account</td><td>First supported broker — credentials added at <code>/settings</code> after install</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout c-tip">
+    <span class="callout-icon">✦</span>
+    <p><strong>Start with chat before automation.</strong> The example app is most useful as a live conversation partner first. Ask the agent to look at your positions, fetch a quote, or explain a stock's technicals. Once you're comfortable with how it reasons and what tools it has, you'll be better placed to give it a Playbook and let it run autonomously.</p>
+  </div>
+</section>
+
+<hr>
+
+<!-- ─── 1. MARKET TOOLING ─────────────────── -->
+<section class="doc-section" id="market-tooling">
+  <div class="sec-hdr"><span class="sec-num">01</span><span class="badge b-blue">primitive</span></div>
+  <h2>Market Tooling</h2>
+  <p class="tagline">The bridge between the LLM and the market — the agent never reasons from stale training data.</p>
+
+  <p>An LLM's training data has a cutoff. It doesn't know today's price of SBIN, whether Nifty is up or down, what news broke this morning, or what positions you currently hold. Market Tooling fixes this by giving the agent <strong>20 built-in tools</strong> that connect it to live market data and your broker — so every decision it makes is grounded in what's actually happening right now.</p>
+
+  <h3>Broker tools</h3>
+  <p>Vibe Trade ships with first-class support for <strong>Dhan</strong>. Additional brokers are on the roadmap. The API endpoints, request structures, and parsing logic are already handled. The agent calls plain-English actions; the primitive handles the broker-specific implementation.</p>
+
+  <div class="callout c-note">
+    <span class="callout-icon">ℹ</span>
+    <p><strong>Why maintained integrations matter:</strong> Broker APIs change. Dhan moved from V1 to V2 — naive code generation, even from strong models, will sometimes call the wrong endpoint. Market Tooling maintains these integrations so tool calls don't silently fail.</p>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Tool</th><th>What it does</th><th>Approval required</th></tr></thead>
+      <tbody>
+        <tr><td>get_quote</td><td>Live price for one or more NSE equities or ETFs</td><td>No</td></tr>
+        <tr><td>get_index_quote</td><td>Live price for any NSE index via IDX_I segment</td><td>No</td></tr>
+        <tr><td>get_positions</td><td>Current open positions with unrealised P&amp;L</td><td>No</td></tr>
+        <tr><td>get_funds</td><td>Available margin and cash balance</td><td>No</td></tr>
+        <tr><td>get_orders</td><td>Pending and filled orders for the session</td><td>No</td></tr>
+        <tr><td>place_order</td><td>Place a buy or sell order — equity or ETF</td><td><strong style="color:var(--red)">Yes</strong></td></tr>
+        <tr><td>cancel_order</td><td>Cancel a pending order by order ID</td><td><strong style="color:var(--red)">Yes</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Market data tools</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Tool</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td>get_historical_data</td><td>OHLCV candles for equities, ETFs, and indices across any timeframe</td></tr>
+        <tr><td>compute_indicators</td><td>RSI, MACD, Bollinger Bands, SMA, EMA, ATR — computed from live OHLCV</td></tr>
+        <tr><td>get_fundamentals</td><td>P/E, EPS, market cap, revenue — stocks only, via Yahoo Finance</td></tr>
+        <tr><td>get_etf_info</td><td>Fund family, expense ratio, top 10 holdings, sector weights — ETFs only</td></tr>
+        <tr><td>fetch_news</td><td>Latest market news from LiveMint RSS</td></tr>
+        <tr><td>get_market_status</td><td>Whether the market is currently open or closed</td></tr>
+        <tr><td>is_trading_day</td><td>Whether a given date is an NSE trading day</td></tr>
+        <tr><td>get_upcoming_holidays</td><td>NSE holiday calendar</td></tr>
+        <tr><td>search_instruments</td><td>Search for equities or ETFs by name or symbol</td></tr>
+        <tr><td>get_top_movers</td><td>Top gainers and losers for any Nifty index</td></tr>
+        <tr><td>get_market_depth</td><td>Level 2 order book — bids and offers with quantities</td></tr>
+        <tr><td>get_index_constituents</td><td>All stocks in any NSE index with symbol, name, and industry</td></tr>
+        <tr><td>compare_stocks</td><td>Side-by-side comparison of equities or indices across key metrics</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Extensibility</h3>
+  <p>The built-in tools cover the most common data needs, but every trader has their own edge — a proprietary screener, an internal backtesting engine, a Bloomberg terminal. Vibe Trade will support registering custom tools by defining an endpoint, credentials, and a capability description the agent can read.</p>
+
+  <div class="callout c-soon">
+    <span class="callout-icon">✦</span>
+    <p><strong>Coming soon.</strong> Custom tool registration is on the roadmap. Once available, any data source or capability you can describe can be added to the agent's toolkit.</p>
+  </div>
+</section>
+
+<!-- ─── 2. HEARTBEAT ──────────────────────── -->
+<section class="doc-section" id="heartbeat">
+  <div class="sec-hdr"><span class="sec-num">02</span><span class="badge b-blue">primitive</span></div>
+  <h2>Heartbeat</h2>
+  <p class="tagline">Continuous market monitoring without continuous LLM inference — a lightweight loop that wakes the agent only when something matters.</p>
+
+  <p>Keeping an LLM running 24/7 is prohibitively expensive. But trading conditions don't wait — a stock might hit your entry price at 2:15pm on a Tuesday, and if nothing is watching, the moment passes. <strong>Heartbeat decouples monitoring from reasoning.</strong> A cheap process watches constantly. The LLM only runs when a condition fires.</p>
+
+  <h3>The tick</h3>
+  <p>Heartbeat runs on a fixed interval — every 30 seconds during market hours, slower when the market is closed. On each tick:</p>
+
+  <div class="tick-steps">
+    <div class="ts">
+      <div class="ts-num">1</div>
+      <div>
+        <h4>Build a dynamic snapshot</h4>
+        <p>Fetch live prices for every symbol currently held and every symbol referenced in an active trigger. Not the whole market — just what's being watched. The scope adjusts automatically as your positions and triggers change.</p>
+      </div>
+    </div>
+    <div class="ts">
+      <div class="ts-num">2</div>
+      <div>
+        <h4>Evaluate all active triggers</h4>
+        <p>Check every trigger condition against the snapshot. Code conditions are evaluated in pure JavaScript — no LLM, no cost. LLM conditions are sent to a lightweight model (Haiku) with a single yes/no question.</p>
+      </div>
+    </div>
+    <div class="ts">
+      <div class="ts-num">3</div>
+      <div>
+        <h4>Wake the agent — or stand down</h4>
+        <p>If a condition fired: spin up the main agent with the full snapshot and Playbook context. If nothing fired: no LLM call, no cost. Quiet tick until the next interval.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>Evaluation cost by condition type</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Condition mode</th><th>Evaluated by</th><th>Cost per tick</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>code</td><td>Pure JavaScript</td><td>Near zero</td><td><code>quotes['HINDALCO'].lastPrice &gt;= 964</code></td></tr>
+        <tr><td>event</td><td>System event listener</td><td>Zero</td><td><code>position_opened</code>, <code>nifty_drop_percent</code></td></tr>
+        <tr><td>time</td><td>Cron scheduler</td><td>Zero</td><td><code>20 9 * * 1-5</code> — weekdays at 9:20am</td></tr>
+        <tr><td>llm</td><td>Haiku (yes/no only)</td><td>Minimal</td><td>"Is any open position showing unusual movement relative to its average?"</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>The <code>llm</code> condition mode is what makes Heartbeat qualitatively different from a traditional rules engine. The agent can set instinct-based triggers — not just coded equations — and the cost of monitoring them stays negligible.</p>
+</section>
+
+<!-- ─── 3. TRIGGERS ───────────────────────── -->
+<section class="doc-section" id="triggers">
+  <div class="sec-hdr"><span class="sec-num">03</span><span class="badge b-green">primitive</span></div>
+  <h2>Triggers</h2>
+  <p class="tagline">The automation primitive — every autonomous action the agent takes originates from a trigger.</p>
+
+  <p>A trigger is a condition and an action. When the condition becomes true, the action fires. There are no separate concepts called "schedules" or "reminders" — a cron expression is just a time-based condition, and everything resolves to the same two questions: <em>when should this run?</em> and <em>what should happen when it does?</em></p>
+
+  <h3>Anatomy of a trigger</h3>
+  <p>Every trigger has the same shape. Here is a real stop-loss trigger from a live intraday session:</p>
+
+  <div class="code-block">
+    <div class="code-hdr"><span>HINDALCO Short — Stop Loss trigger</span><span class="code-hdr-lang">JSON</span></div>
+    <pre>{
+  <span class="key">"id"</span>: <span class="str">"2da93e8b-59c1-4493-ab64-685840048aeb"</span>,
+  <span class="key">"name"</span>: <span class="str">"HINDALCO Short — Stop Loss ₹964"</span>,
+  <span class="key">"scope"</span>: <span class="str">"symbol"</span>,
+  <span class="key">"watchSymbols"</span>: [<span class="str">"HINDALCO"</span>],
+
+  <span class="key">"condition"</span>: {
+    <span class="key">"mode"</span>: <span class="str">"code"</span>,
+    <span class="key">"expression"</span>: <span class="str">"quotes['HINDALCO'].lastPrice >= 964"</span>
+  },
+
+  <span class="key">"action"</span>: {
+    <span class="key">"type"</span>: <span class="str">"hard_order"</span>,  <span class="cmt">// executes instantly — no agent involved</span>
+    <span class="key">"tradeArgs"</span>: {
+      <span class="key">"symbol"</span>: <span class="str">"HINDALCO"</span>,
+      <span class="key">"transaction_type"</span>: <span class="str">"BUY"</span>,  <span class="cmt">// cover the short</span>
+      <span class="key">"quantity"</span>: <span class="num">3</span>,
+      <span class="key">"order_type"</span>: <span class="str">"MARKET"</span>
+    }
+  },
+
+  <span class="key">"expiresAt"</span>: <span class="str">"2026-03-11T15:15:00+05:30"</span>,  <span class="cmt">// auto-cancels at EOD</span>
+  <span class="key">"context"</span>: <span class="str">"Stop loss for intraday short. Entry SHORT 3 shares @ ₹957.95. Cover if price hits ₹964."</span>,
+  <span class="key">"status"</span>: <span class="str">"active"</span>
+}</pre>
+  </div>
+
+  <h3>Condition modes</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Mode</th><th>When it fires</th><th>Typical use</th></tr></thead>
+      <tbody>
+        <tr><td>code</td><td>When a JavaScript expression evaluates to <code>true</code> against the live snapshot</td><td>Stop-loss, price targets, portfolio-level drawdown guards</td></tr>
+        <tr><td>event</td><td>When a named system event occurs</td><td>Position opened/closed, Nifty move above threshold, re-entry scans</td></tr>
+        <tr><td>time</td><td>On a cron schedule</td><td>Morning scans, position monitors, EOD hard closes, EOD reviews</td></tr>
+        <tr><td>llm</td><td>When Haiku answers "yes" to a natural language question</td><td>Instinct-based conditions that can't be expressed as a formula</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Action types</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Type</th><th>What happens</th><th>Agent involved?</th><th>Typical use</th></tr></thead>
+      <tbody>
+        <tr><td>hard_order</td><td>Trade executes immediately in pure code — no reasoning, no approval queue</td><td>No</td><td>Stop-losses, price targets, EOD hard closes where latency matters</td></tr>
+        <tr><td>reasoning_job</td><td>Agent wakes up with trigger context and Playbook loaded, reasons, and may queue approvals</td><td>Yes</td><td>Morning scans, position monitors, re-entry decisions, event-driven reviews</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout c-info">
+    <span class="callout-icon">◈</span>
+    <p><strong>hard_order vs reasoning_job:</strong> The distinction matters most for time-sensitive exits. A stop-loss that fires a <code>reasoning_job</code> will wait for the agent to wake up, reason, and queue an approval. A stop-loss that fires a <code>hard_order</code> executes the moment the price condition is met. For hard guardrails, use <code>hard_order</code>. For anything requiring judgement, use <code>reasoning_job</code>.</p>
+  </div>
+
+  <h3>A real trigger stack — Aggressive Alpha</h3>
+  <p>The full trigger architecture the agent registered for itself when running the Aggressive Alpha intraday Playbook — created automatically when positions were opened:</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Trigger</th><th>Condition</th><th>Action</th><th>Scope</th></tr></thead>
+      <tbody>
+        <tr><td>Alpha SL — HINDALCO</td><td><code>code</code> — price ≥ ₹964 (short SL)</td><td>hard_order BUY 3 MARKET</td><td>symbol</td></tr>
+        <tr><td>Alpha Target — HINDALCO</td><td><code>code</code> — price ≤ ₹948 (target)</td><td>hard_order BUY 3 MARKET</td><td>symbol</td></tr>
+        <tr><td>Alpha Trail — HINDALCO</td><td><code>code</code> — price ≤ ₹938 (+2% move)</td><td>reasoning_job — move SL to breakeven</td><td>symbol</td></tr>
+        <tr><td>Nifty Drop Guard</td><td><code>event</code> — nifty_drop_percent ≥ 1%</td><td>reasoning_job — review all longs</td><td>market</td></tr>
+        <tr><td>Nifty Spike Guard</td><td><code>event</code> — nifty_rise_percent ≥ 1%</td><td>reasoning_job — review all shorts</td><td>market</td></tr>
+        <tr><td>Re-entry Scanner</td><td><code>event</code> — position_closed</td><td>reasoning_job — find next setup</td><td>portfolio</td></tr>
+        <tr><td>Correlated Drawdown Guard</td><td><code>code</code> — 2+ positions losing >0.75% simultaneously</td><td>reasoning_job — review combined exposure</td><td>portfolio</td></tr>
+        <tr><td>Time Stop Review</td><td><code>code</code> — any position &lt;0.5% move after 90 min</td><td>reasoning_job — evaluate dead weight</td><td>portfolio</td></tr>
+        <tr><td>Position Monitor</td><td><code>time</code> — every 30 min, 9:20am–3:10pm</td><td>reasoning_job — VWAP, RSI, volume check</td><td>portfolio</td></tr>
+        <tr><td>EOD Hard Close</td><td><code>time</code> — 3:10pm daily</td><td>reasoning_job — close all positions</td><td>portfolio</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>The agent registered all of these itself — from the per-position SL and target triggers to the portfolio-level guards. You described the strategy. The agent built the automation stack.</p>
+</section>
+
+<!-- ─── 4. PERMISSIONS ────────────────────── -->
+<section class="doc-section" id="permissions">
+  <div class="sec-hdr"><span class="sec-num">04</span><span class="badge b-red">primitive</span></div>
+  <h2>Permissions</h2>
+  <p class="tagline">The trust primitive — a code-level approval gate that ensures no money moves without recorded consent.</p>
+
+  <p>Giving an AI access to your trading account is a meaningful act of trust. The obvious failure mode is an agent that acts on your money without your knowledge. But there's a subtler failure mode: an agent that <em>asks</em> for permission in chat, you say "yes", and that's treated as authorisation. That's gameable, ambiguous, and not a real record of consent.</p>
+
+  <p><strong>The core principle: no trade can be placed without explicit, recorded consent.</strong> What consent looks like depends on how much autonomy you've chosen to give the agent.</p>
+
+  <h3>The approval gate</h3>
+  <p>Every <code>reasoning_job</code> that wants to place a trade must submit a request to the approval gate. The agent cannot bypass this. Even when it has concluded a trade is the right move, it can only queue the request — not execute it.</p>
+
+  <p>The request arrives as a structured approval card: the exact trade, the full reasoning behind it, and the context that led to the decision. Here is a real card from a live session — the agent's recommendation to exit a short ONGC position:</p>
+
+  <div class="approval-card">
+    <div class="approval-card-header">
+      <span class="label">Approval request · Aggressive Alpha — Position Monitor</span>
+      <span class="badge b-yellow">reasoning_job</span>
+    </div>
+    <div class="approval-card-body">
+      <div class="approval-trade">
+        <span class="badge b-red">SELL · ONGC</span>
+        <span class="badge b-muted">11 shares</span>
+        <span class="badge b-muted">MARKET order</span>
+        <span class="badge b-muted">Close SHORT</span>
+      </div>
+      <div class="approval-reasoning">
+        <strong>🔴 EXIT SIGNAL — 3 SIGNALS FIRED on SHORT ONGC</strong> (Entry ₹269.00, LTP ₹271.75, −₹30.25 unrealised loss)<br><br>
+        <strong>SIGNAL 1 — RSI DETERIORATION:</strong> RSI has risen to 56.52, crossing the 55 ceiling for short momentum. The downside thesis is losing steam — buyers are stepping in.<br><br>
+        <strong>SIGNAL 2 — RECOVERY WITH ELEVATED VOLUME:</strong> Last two candles (179K, 260K) showed high-volume bouncing action. Price recovering from ₹271.2 back to ₹271.75. A SHORT needs sellers in control; this shows the opposite.<br><br>
+        <strong>SIGNAL 3 — POST-1PM LOSS WITH NO CATALYST:</strong> It is 13:30 IST. Position is at −1.02% with no news driving ONGC lower. Hard SL at ₹273.04 is only ₹1.29 away. Holding risks a −1.5% loss; exiting now limits damage to −1.02%.<br><br>
+        <strong>RECOMMENDATION:</strong> Exit now. Saves approximately ₹5.30/share vs letting it hit the hard SL.
+      </div>
+      <div class="approval-actions">
+        <button class="btn-approve">✓ Approve</button>
+        <button class="btn-reject">✗ Reject</button>
+      </div>
+    </div>
+  </div>
+
+  <p>This is not a chat confirmation. It is a timestamped, structured record — linked to the Playbook, the trigger that fired, and the agent's reasoning at the moment of decision.</p>
+
+  <h3>Three levels of consent</h3>
+  <div class="consent-stack">
+    <div class="cl">
+      <div class="cl-dot" style="background:var(--blue)"></div>
+      <div>
+        <h4>In-chat execution</h4>
+        <p>You're in a live conversation and ask the agent to act. Even so, it raises a formal approval card — not a chat reply. You click Approve. The gate is always present, even in active sessions.</p>
+      </div>
+    </div>
+    <div class="cl">
+      <div class="cl-dot" style="background:var(--yellow)"></div>
+      <div>
+        <h4>Async approval</h4>
+        <p>A trigger fires while you're away from your desk. The agent queues the approval and waits. Mobile delivery — WhatsApp, Telegram — is on the roadmap, so you can approve or reject from your phone without opening the app.</p>
+      </div>
+    </div>
+    <div class="cl">
+      <div class="cl-dot" style="background:var(--accent)"></div>
+      <div>
+        <h4>Autonomous execution</h4>
+        <p>Available only within a Playbook, with explicit guardrails defined upfront: maximum capital, maximum loss, circuit-breakers like <em>"if two stop-losses hit today, halt all new entries."</em> Consent was given when you set the rules. The agent operates within that mandate and cannot exceed it.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>hard_order and the pre-authorisation model</h3>
+  <p>Some triggers bypass the approval queue entirely. A <code>hard_order</code> trigger — used for stop-losses and price targets — executes the moment its condition is met, with no agent involvement and no approval step. This is by design: a stop-loss that waits for your phone tap is not a stop-loss.</p>
+
+  <p>The consent for a <code>hard_order</code> is given when you create the trigger. At that point you're specifying the exact condition and the exact trade. The execution is just the fulfilment of a decision you already made.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Consent type</th><th>When given</th><th>Where recorded</th></tr></thead>
+      <tbody>
+        <tr><td>Trade-level</td><td>At execution time — per trade</td><td>Approval queue — Approve / Reject</td></tr>
+        <tr><td>Trigger-level</td><td>When the hard_order trigger is created</td><td>Trigger record — condition + tradeArgs</td></tr>
+        <tr><td>Autonomous</td><td>When Playbook guardrails are defined</td><td>Playbook document — mandate boundaries</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ─── 5. PLAYBOOKS ──────────────────────── -->
+<section class="doc-section" id="playbooks">
+  <div class="sec-hdr"><span class="sec-num">05</span><span class="badge b-yellow">primitive</span></div>
+  <h2>Playbooks</h2>
+  <p class="tagline">The agent's operating manual — a written strategy document that anchors every decision made on its behalf.</p>
+
+  <p>Every new LLM session starts from zero. Without a Playbook, ask the agent whether to buy Infosys today, close the tab, ask again tomorrow — and you might get a different answer. One instance looks at volatility and says wait. Another looks at fundamentals and says buy. Neither is wrong, but neither is <em>yours</em>. There's no consistent thesis, no discipline, no record of what you were trying to achieve.</p>
+
+  <p><strong>A Playbook is the document that fixes this.</strong> It is a written strategy that the agent receives as context on every run — whether triggered by a schedule, a price condition, or a live chat. The agent reasons as: <em>"I am running this Playbook. These are my rules. Given what I can see right now, here is what I should do."</em></p>
+
+  <h3>What a Playbook contains</h3>
+  <p>A Playbook is a markdown document. There is no rigid schema — you write it the way you'd brief a portfolio manager. In practice, effective Playbooks cover four things:</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Section</th><th>What it captures</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td class="plain">Investment thesis</td><td>Why you're trading this and what you believe</td><td>"Maximize intraday P&amp;L by keeping capital deployed across 3 slots, trading momentum/breakout setups on liquid Nifty 100 stocks in both directions"</td></tr>
+        <tr><td class="plain">Rules and constraints</td><td>What the agent must and must not do</td><td>"No new entries after 2:30 PM. Skip entry if available balance &lt; ₹2,000. VIX &gt; 22: use tighter SL parameters"</td></tr>
+        <tr><td class="plain">Entry and exit approach</td><td>How the agent identifies and sizes trades</td><td>"LONG: price above VWAP, RSI 45–65, breaking above opening range high. Quantity = slot capital / price, round down"</td></tr>
+        <tr><td class="plain">Capital allocation</td><td>How much is deployed and how it's split</td><td>"Slot A: ₹3,000 · Slot B: ₹3,000 · Slot C: ₹2,500 · Reserve: ₹500 (never deployed)"</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>You don't write this from scratch. You describe your intent in plain English, the agent helps you shape it into a document, and once you agree — it becomes the operating manual.</p>
+
+  <h3>What a Playbook adds</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Feature</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>Consistent agent identity</td><td>Every trigger and schedule tied to this Playbook loads the same document. The agent always knows which programme it's running.</td></tr>
+        <tr><td>Isolated P&amp;L tracking</td><td>Trades tagged to a Playbook are tracked separately. You can see exactly how a thesis is performing over time.</td></tr>
+        <tr><td>Capital allocation bounds</td><td>The Playbook specifies what's allocated. The agent reasons within those bounds and won't exceed them.</td></tr>
+        <tr><td>Playbook state</td><td>The agent reads and updates strategy state — <code>scanning</code>, <code>paused</code>, <code>position_open</code> — so each run picks up where the last one left off.</td></tr>
+        <tr><td>Scoped Learnings</td><td>Observations and distilled lessons are tagged to the Playbook they came from. Performance review is always in context of the specific thesis.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Playbook record</h3>
+  <p>The actual Playbook record for Aggressive Alpha — the live intraday strategy used throughout these docs:</p>
+
+  <div class="code-block">
+    <div class="code-hdr"><span>Aggressive Alpha — Playbook record</span><span class="code-hdr-lang">JSON</span></div>
+    <pre>{
+  <span class="key">"id"</span>: <span class="str">"84f56962-0f6b-4d71-b1ec-4c9721f88fdb"</span>,
+  <span class="key">"name"</span>: <span class="str">"Aggressive Alpha"</span>,
+  <span class="key">"description"</span>: <span class="str">"Aggressive intraday long/short momentum strategy trading up to 3 concurrent positions across Nifty 100 stocks, always keeping capital deployed."</span>,
+  <span class="key">"allocation"</span>: <span class="num">9000</span>,
+  <span class="key">"state"</span>: <span class="str">"scanning"</span>,  <span class="cmt">// updated by the agent after each run</span>
+  <span class="key">"status"</span>: <span class="str">"active"</span>,
+  <span class="key">"plan"</span>: <span class="str">"## Aggressive Alpha — Intraday Long/Short Momentum Strategy\n\n..."</span>,
+  <span class="key">"createdAt"</span>: <span class="str">"2026-03-10T17:09:16.796Z"</span>,
+  <span class="key">"updatedAt"</span>: <span class="str">"2026-03-11T07:31:15.671Z"</span>
+}</pre>
+  </div>
+</section>
+
+<!-- ─── 6. LEARNINGS ──────────────────────── -->
+<section class="doc-section" id="learnings">
+  <div class="sec-hdr"><span class="sec-num">06</span><span class="badge b-orange">primitive</span></div>
+  <h2>Learnings</h2>
+  <p class="tagline">The agent's audit trail and compounding memory — an immutable record of every trade, every decision, and everything distilled from both.</p>
+
+  <p>LLMs don't naturally remember what they did. Ask an agent why it bought a stock last Tuesday and it may confabulate a reason, or simply not know. This is a foundational problem when AI is acting on your money: you need a ground truth it can't rewrite.</p>
+
+  <p>Beyond accountability, there's a compounding problem: without a record of what worked and what didn't, the agent makes the same mistakes indefinitely. <strong>Learnings solves both.</strong></p>
+
+  <h3>The trade journal</h3>
+  <p>Every order placed through Vibe Trade is written to an immutable trade record. Each entry captures what happened, when, and — critically — why the agent decided to act. Here are real entries from a live session:</p>
+
+  <div class="code-block">
+    <div class="code-hdr"><span>Trade records — Aggressive Alpha session</span><span class="code-hdr-lang">JSON</span></div>
+    <pre>[
+  {
+    <span class="key">"id"</span>: <span class="str">"6b2029a0-81e1-443f-85cd-e9f377182391"</span>,
+    <span class="key">"symbol"</span>: <span class="str">"ONGC"</span>,
+    <span class="key">"transactionType"</span>: <span class="str">"SELL"</span>,
+    <span class="key">"quantity"</span>: <span class="num">11</span>,
+    <span class="key">"executedPrice"</span>: <span class="num">269.00</span>,
+    <span class="key">"status"</span>: <span class="str">"filled"</span>,
+    <span class="key">"strategyId"</span>: <span class="str">"84f56962-0f6b-4d71-b1ec-4c9721f88fdb"</span>,
+    <span class="key">"note"</span>: <span class="str">"Aggressive Alpha — Slot B SHORT. Below VWAP all session, RSI 45 falling, MACD negative, weak oil sector on bearish day. SL: ₹273.04, Target: ₹262.28"</span>,
+    <span class="key">"filledAt"</span>: <span class="str">"2026-03-11 10:19:12"</span>
+  },
+  {
+    <span class="key">"id"</span>: <span class="str">"0c616b25-8f1b-4ea1-a2b8-4ddf3c4e0621"</span>,
+    <span class="key">"symbol"</span>: <span class="str">"COALINDIA"</span>,
+    <span class="key">"transactionType"</span>: <span class="str">"BUY"</span>,
+    <span class="key">"quantity"</span>: <span class="num">5</span>,
+    <span class="key">"executedPrice"</span>: <span class="num">446.90</span>,
+    <span class="key">"status"</span>: <span class="str">"filled"</span>,
+    <span class="key">"strategyId"</span>: <span class="str">"84f56962-0f6b-4d71-b1ec-4c9721f88fdb"</span>,
+    <span class="key">"note"</span>: <span class="str">"Aggressive Alpha — Slot C LONG. Gapped up at open, holding above VWAP, RSI 56 with room to run, MACD positive. SL: ₹440.00, Target: ₹457.77"</span>,
+    <span class="key">"filledAt"</span>: <span class="str">"2026-03-11 10:19:14"</span>
+  }
+]</pre>
+  </div>
+
+  <p>The <code>note</code> field is written by the agent at the moment of entry — the reasoning it used to make the decision, not a post-hoc summary. Every trade is auditable back to the exact thesis the agent was running at the time.</p>
+
+  <h3>Playbook-level vs. global</h3>
+  <p>Every record is tagged. Trades, trigger runs, and observations are all linked to the Playbook they belong to — or marked global if they weren't part of one. The agent can filter its entire history by Playbook: <em>show me everything Aggressive Alpha did.</em></p>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon">📂</div>
+      <h4>Playbook-scoped</h4>
+      <p>Did the strategy stay true to its rules? Where did it overtrade? Where did it miss entries? All answerable by filtering to the Playbook's history.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🌐</div>
+      <h4>Global observations</h4>
+      <p>Patterns that apply across all Playbooks — market-wide timing, instrument behaviour, model tendencies. Cross-strategy insights live here separately.</p>
+    </div>
+  </div>
+
+  <h3>Compounding edge</h3>
+  <p>At the end of each trading day, the agent reviews its history — reading through the trades placed, the reasoning written at the time, and the outcomes — and distils learnings from that review. These feed forward. A learning might propose tightening an entry condition, adjusting a rebalancing cadence, or flagging a pattern the agent kept getting wrong. Proposed changes require your approval; the agent does not edit the Playbook unilaterally.</p>
+
+  <div class="callout c-soon">
+    <span class="callout-icon">✦</span>
+    <p><strong>End-of-day distillation is coming soon.</strong> The trade journal and audit trail are live today. The automated end-of-day review loop — where the agent reads its history and surfaces proposed learnings — is actively being built.</p>
+  </div>
+</section>
+
+<!-- ─── 7. SKILLS ─────────────────────────── -->
+<section class="doc-section" id="skills">
+  <div class="sec-hdr"><span class="sec-num">07</span><span class="badge b-purple">coming soon</span></div>
+  <h2>Skills</h2>
+  <p class="tagline">Reusable instruction modules that personalise how the agent behaves for specific tasks — loaded when relevant, ignored when not.</p>
+
+  <p>A Playbook defines what you're trying to achieve. A Skill defines <em>how</em> you like a specific recurring task done. Where a Playbook is the strategy, a Skill is the technique.</p>
+
+  <p>If you have a particular way of sizing positions, a checklist you run before entering a momentum trade, or a preference for how exit reasoning gets presented — that's a Skill. You write it once, and the agent reaches for it whenever that task comes up.</p>
+
+  <h3>What a Skill looks like</h3>
+  <p>A Skill is a markdown file: a name, a description the agent uses to decide when to reach for it, and the instruction content itself. The format is identical to Claude's skill files — intentionally familiar.</p>
+
+  <div class="skill-file">
+    <div class="skill-file-tab">
+      <div class="dot"></div>
+      <span>position-sizing.md</span>
+    </div>
+    <pre>---
+name: position-sizing
+description: How I calculate position size for intraday trades. Use this
+             whenever you need to determine quantity for a new entry.
+---
+
+Always size by risk, not by capital.
+
+1. Determine the stop-loss distance in rupees (entry price - SL price for longs)
+2. Risk per trade = 1% of available capital
+3. Quantity = risk per trade / stop-loss distance, rounded down
+4. Minimum 1 share. If quantity rounds to 0, skip the trade.
+5. Never exceed 25% of available capital in a single position, regardless
+   of what the formula gives you.
+
+For intraday trades, always use INTRADAY product type. Never CNC.</pre>
+  </div>
+
+  <h3>How Skills are loaded</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Context</th><th>Which Skills are available</th></tr></thead>
+      <tbody>
+        <tr><td>Live chat</td><td>All Skills in your library — the agent can reach for any of them freely</td></tr>
+        <tr><td>Playbook run (trigger or schedule)</td><td>Only Skills attached to that Playbook — clean isolation between strategies</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>This mirrors how Skills work in Claude Code: you configure which Skills are available per project, and the model decides when they're relevant. Attach Skills to a Playbook the way you load Skills into a project.</p>
+
+  <div class="callout c-soon">
+    <span class="callout-icon">✦</span>
+    <p><strong>Skills are coming soon.</strong> The Playbook context window already supports additional instruction modules. The Skills library UI and per-Playbook attachment are actively being built.</p>
+  </div>
+</section>
+
+<hr>
+
+<!-- ─── PRIMITIVES AT A GLANCE ───────────── -->
+<section class="doc-section" id="primitives-at-a-glance">
+  <h2>Primitives at a Glance</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Primitive</th><th>What it gives the agent</th><th>Without it</th></tr></thead>
+      <tbody>
+        <tr><td>01</td><td>Market Tooling</td><td>Live data and broker execution — 20 built-in tools, never reasoning from stale training data</td><td>Agent reasons in the dark; can't act on the market</td></tr>
+        <tr><td>02</td><td>Heartbeat</td><td>Always-on monitoring loop that wakes the agent only when a condition fires</td><td>Either runs 24/7 at full cost, or misses time-sensitive triggers entirely</td></tr>
+        <tr><td>03</td><td>Triggers</td><td>A condition and an action — the automation primitive that drives everything</td><td>Agent runs once and is forgotten; nothing is automated</td></tr>
+        <tr><td>04</td><td>Permissions</td><td>A code-level approval gate with three consent modes and a full audit trail</td><td>Agent acts without authorisation; no record of why</td></tr>
+        <tr><td>05</td><td>Playbooks</td><td>A persistent strategy document loaded as context on every agent run</td><td>Every session starts from zero; no consistent identity or rules</td></tr>
+        <tr><td>06</td><td>Learnings</td><td>Immutable trade journal and compounding memory across every session</td><td>Agent makes the same mistakes indefinitely; no accountability</td></tr>
+        <tr><td>07</td><td>Skills</td><td>Reusable instruction modules for specific recurring tasks</td><td>Agent applies generic behaviour to tasks you've already taught it how to do</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ─── FULL DATA FLOW ────────────────────── -->
+<section class="doc-section" id="data-flow">
+  <h2>Full Data Flow</h2>
+  <p>How a complete autonomous Playbook run flows through all the primitives — from Heartbeat tick to executed trade. This is a real session: Aggressive Alpha, 11 March 2026.</p>
+
+  <div class="flow-steps-list">
+    <div class="flow-step">
+      <span class="flow-step-lbl">Heartbeat</span>
+      <div>
+        <div class="flow-step-title">Tick fires at 9:00am — snapshot built</div>
+        <div class="flow-step-desc">Live prices fetched for SBIN, ONGC, COALINDIA. Position Monitor trigger evaluated: condition is <code>time</code>, cron <code>*/30 9-15 * * 1-5</code> — fires.</div>
+      </div>
+      <span class="badge b-green" style="margin-left:auto;flex-shrink:0">fires</span>
+    </div>
+    <div class="flow-step">
+      <span class="flow-step-lbl">Triggers</span>
+      <div>
+        <div class="flow-step-title">Trigger dispatches a reasoning_job</div>
+        <div class="flow-step-desc">Action type is <code>reasoning_job</code>. Agent instance started with trigger context: "You are running the Aggressive Alpha 30-minute position monitor…"</div>
+      </div>
+      <span class="badge b-yellow" style="margin-left:auto;flex-shrink:0">reasoning_job</span>
+    </div>
+    <div class="flow-step">
+      <span class="flow-step-lbl">Playbooks</span>
+      <div>
+        <div class="flow-step-title">Playbook document loaded as system context</div>
+        <div class="flow-step-desc">Aggressive Alpha plan injected: entry rules, exit rules, capital allocation, guardrails. Agent knows which programme it's running.</div>
+      </div>
+      <span class="badge b-yellow" style="margin-left:auto;flex-shrink:0">loaded</span>
+    </div>
+    <div class="flow-step">
+      <span class="flow-step-lbl">Market Tooling</span>
+      <div>
+        <div class="flow-step-title">Agent reasons — tool calls made</div>
+        <div class="flow-step-desc">Calls <code>get_positions</code>, <code>get_quote</code> for all open symbols, <code>compute_indicators</code> (5-min RSI + VWAP). Evaluates RSI deterioration, volume fade, post-1pm criteria across ONGC SHORT.</div>
+      </div>
+      <span class="badge b-blue" style="margin-left:auto;flex-shrink:0">tool calls</span>
+    </div>
+    <div class="flow-step" style="border-color:rgba(220,38,38,.2)">
+      <span class="flow-step-lbl">Permissions</span>
+      <div>
+        <div class="flow-step-title">Approval card queued — 3 signals fired on ONGC SHORT</div>
+        <div class="flow-step-desc">RSI deterioration, recovery with elevated volume, post-1pm loss. Full reasoning written. Card appears in approval queue. User approves at 13:32.</div>
+      </div>
+      <span class="badge b-red" style="margin-left:auto;flex-shrink:0">approved</span>
+    </div>
+    <div class="flow-step" style="border-color:rgba(26,173,26,.2)">
+      <span class="flow-step-lbl">Broker</span>
+      <div>
+        <div class="flow-step-title">Trade placed via Market Tooling</div>
+        <div class="flow-step-desc"><code>place_order</code> called: BUY 11 ONGC MARKET (close short). Order filled at ₹271.75. Order ID 341260311280802.</div>
+      </div>
+      <span class="badge b-green" style="margin-left:auto;flex-shrink:0">filled</span>
+    </div>
+    <div class="flow-step">
+      <span class="flow-step-lbl">Learnings</span>
+      <div>
+        <div class="flow-step-title">Trade record written with agent reasoning</div>
+        <div class="flow-step-desc">Immutable entry created: symbol, quantity, price, Playbook ID, and the full exit reasoning at the moment of decision. Tagged to Aggressive Alpha. Available for end-of-day review.</div>
+      </div>
+      <span class="badge b-orange" style="margin-left:auto;flex-shrink:0">logged</span>
+    </div>
+  </div>
+
+  <div class="callout c-tip">
+    <span class="callout-icon">✦</span>
+    <p>The Position Monitor ran four times that day. At 9:30am it queued the ONGC exit, which was approved. At 10:00am it ran and took no action — logged as <em>"no action needed."</em> At 10:30am it queued exits for COALINDIA and HINDALCO. Every run, whether it resulted in a trade or not, is recorded in full.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+const sections = document.querySelectorAll('.doc-section[id]');
+const links = document.querySelectorAll('.nav-link:not(.soon)');
+function updateActive() {
+  let current = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 120) current = s.id });
+  links.forEach(l => {
+    const href = l.getAttribute('href').slice(1);
+    l.classList.toggle('active', href === current);
+  });
+}
+window.addEventListener('scroll', updateActive, { passive: true });
+updateActive();
+</script>
+</body>
+</html>

@@ -1,0 +1,703 @@
+# Vibe Trade — Full Documentation
+
+> Vibe Trade is an agentic trading harness. Six primitives give an LLM everything it needs to trade autonomously on your behalf — with live market data, automated monitoring, a structured permission system, and a compounding memory of every decision it makes.
+
+Source: https://docs.vibetrade.app
+Repository: https://github.com/YOUR_ORG/vibe-trade-site
+
+---
+
+
+# The agentic harness for autonomous trading
+
+> Six primitives that give an LLM everything it needs to trade on your behalf — and nothing more than you've authorised.
+
+Vibe Trade is a **harness** — a structured environment that lets a large language model reason about markets, act on your behalf, and accumulate judgement over time, without you having to babysit it.
+
+The core insight is that LLMs are already capable of sophisticated market reasoning. What they lack is **infrastructure**: a live connection to the market, a sense of time, a memory that persists across sessions, a monitoring loop that doesn't cost a fortune, and a trust model that ensures nothing happens without your consent. Vibe Trade supplies all of it.
+
+The result is a trading agent you can give a strategy to in plain English — and then leave alone.
+
+---
+
+## The six primitives
+
+| # | Primitive | What it gives the agent |
+|---|-----------|------------------------|
+| 01 | [Market Tooling](primitives/market-tooling.md) | Live data and broker execution — 20 built-in tools |
+| 02 | [Heartbeat](primitives/heartbeat.md) | Always-on monitoring loop, wakes the agent only when a condition fires |
+| 03 | [Triggers](primitives/triggers.md) | A condition and an action — the automation primitive |
+| 04 | [Permissions](primitives/permissions.md) | Code-level approval gate with three consent modes |
+| 05 | [Playbooks](primitives/playbooks.md) | Persistent strategy document loaded as context on every run |
+| 06 | [Learnings](primitives/learnings.md) | Immutable trade journal and compounding memory |
+| 07 | [Skills](primitives/skills.md) | Reusable instruction modules _(coming soon)_ |
+
+---
+
+## Quick start
+
+```bash
+npm install -g vibe-trade
+vibe-trade start
+```
+
+Open [http://localhost:3000](http://localhost:3000) and connect your Dhan account at `/settings`.
+
+→ [Full example app guide](example-app.md)
+
+---
+
+# What is Vibe Trade?
+
+Vibe Trade is the backend for agentic trading. Just as infrastructure platforms give developers a database, auth, and storage without making them build those systems from scratch, Vibe Trade gives an AI trading agent a live market connection, a scheduling system, a strategy memory, an audit trail, a monitoring loop, and a permission gate — without you having to build any of it.
+
+You describe what you want to trade and why. The agent figures out how. The harness makes sure it runs reliably, accountably, and only as far as you've permitted.
+
+---
+
+## What it gives you
+
+### Live market awareness
+
+20 built-in tools covering broker execution, real-time quotes, candles, indicators, fundamentals, ETFs, news, and index data. The agent never reasons from stale training data.
+
+### Strategy memory that persists
+
+The agent doesn't start from zero each session. A written [Playbook](primitives/playbooks.md) anchors every decision it makes — consistent rules, consistent judgement, isolated P\&L.
+
+### Runs on its own schedule
+
+Set a trigger once. The agent wakes itself up, reasons from live data, and acts — without you being present. See [Triggers](primitives/triggers.md) and [Heartbeat](primitives/heartbeat.md).
+
+### No trade without your consent
+
+A code-level approval gate sits in front of every execution. You define what consent looks like at each level of autonomy. See [Permissions](primitives/permissions.md).
+
+---
+
+# The Harness
+
+The word "harness" is deliberate. A harness doesn't replace the horse — it channels its capability into something controllable, directed, and safe. Vibe Trade does the same for an LLM.
+
+An LLM on its own is powerful but directionless for trading. It has no state, no time, no broker connection, no memory of what it did yesterday, and no guardrails on what it can do next. The harness provides all of that as a set of interlocking primitives. Remove any one of them and the agent either can't act, or acts without accountability.
+
+---
+
+## Primitives around the core reasoner
+
+```
+┌─────────────────┐                    ┌─────────────────┐
+│  Market Tooling │                    │   Permissions   │
+│ live data+broker│──┐             ┌──▶│  approval gate  │
+├─────────────────┤  │   ┌─────┐   │  ├─────────────────┤
+│    Heartbeat    │──┼──▶│ LLM │───┤  │    Playbooks    │
+│ monitoring loop │  │   └─────┘   │  │ strategy+thesis │
+├─────────────────┤  │             │  ├─────────────────┤
+│    Triggers     │──┘             └──▶│    Learnings    │
+│   when to act   │                    │  audit+memory   │
+└─────────────────┘                    └─────────────────┘
+```
+
+The LLM reasons. The harness acts, remembers, and governs.
+
+Each primitive solves one problem an LLM cannot solve on its own. Together they form a complete agentic trading system.
+
+---
+
+# How Primitives Connect
+
+The six primitives aren't independent modules — they compose into a single runtime loop. Here is the path for an autonomous Playbook run:
+
+---
+
+## The runtime loop
+
+```
+Heartbeat → Market snapshot → Trigger fires → Playbook loaded
+    → LLM reasons → Permissions gate → Trade placed
+```
+
+[Learnings](primitives/learnings.md) records every step as a side-effect — including runs where no trade is placed.
+
+---
+
+## What each primitive contributes
+
+| Primitive | Role in the loop | Without it |
+|-----------|-----------------|------------|
+| [Market Tooling](primitives/market-tooling.md) | Gives the agent live data and the ability to execute | Agent reasons in the dark; can't act on the market |
+| [Heartbeat](primitives/heartbeat.md) | Monitors conditions cheaply; wakes the agent only when something fires | Either runs 24/7 (expensive) or misses time-sensitive triggers |
+| [Triggers](primitives/triggers.md) | Defines when and why the agent wakes up — time, price, or event | Agent runs once and is forgotten; nothing is automated |
+| [Permissions](primitives/permissions.md) | Code-level gate before every trade; records every decision | Agent acts without consent; no audit trail |
+| [Playbooks](primitives/playbooks.md) | Loads the strategy document as context on every agent run | Every session starts from zero; no consistent identity or rules |
+| [Learnings](primitives/learnings.md) | Logs every action with reasoning; compounds edge over time | Agent makes the same mistakes indefinitely; no accountability |
+
+---
+
+# Example App
+
+A local chat interface that puts all six primitives in your hands — the fastest way to understand what the harness actually does.
+
+The Vibe Trade example app is a fully-featured chat application that connects to the same primitives described in these docs. Every concept here — Heartbeat, Triggers, Permissions, Playbooks, Learnings — is wired up and ready to use. Install it, connect your Dhan account, and the harness is live.
+
+It's designed as an **experience** first. You can talk to the agent, watch it reason in real time, approve or reject its trade suggestions, create Playbooks through conversation, and inspect everything it has done and why.
+
+---
+
+## Install and run
+
+```bash
+# Install globally via npm
+npm install -g vibe-trade
+
+# Run the app
+vibe-trade start
+```
+
+```
+✓ Vibe Trade running at http://localhost:3000
+✓ Heartbeat loop      waiting for market open
+✓ Storage             ~/.vibe-trade/db.json
+  Connect your Dhan account at http://localhost:3000/settings
+```
+
+The app runs entirely on your machine. Your Anthropic API key, your Dhan credentials, your trade history, your Playbooks — none of it leaves your local environment.
+
+---
+
+## What you can do with it
+
+**Talk to your portfolio** — Ask the agent what's in your positions, how they're performing, what the market is doing. It has live access to everything via [Market Tooling](primitives/market-tooling.md).
+
+**Create Playbooks in chat** — Describe your strategy. The agent helps you shape it into a structured [Playbook](primitives/playbooks.md), then runs it autonomously from that point forward.
+
+**Watch triggers fire** — The [Heartbeat](primitives/heartbeat.md) loop runs in the background. When a condition fires, you see it — and if it's a reasoning job, you see the agent's full thought process.
+
+**Approve trades in real time** — Every trade recommendation arrives as a structured approval card with full reasoning. One click to approve or reject. See [Permissions](primitives/permissions.md).
+
+**Review the trade journal** — Every decision, every reasoning trace, every outcome — logged and browsable by Playbook or time. See [Learnings](primitives/learnings.md).
+
+**Configure without code** — Triggers, Playbooks, and permissions are all managed through the UI or through conversation.
+
+---
+
+## Requirements
+
+| Dependency | Notes |
+|------------|-------|
+| Node.js ≥ 18 | The app runs as a local Node process |
+| Anthropic API key | Powers the agent — Claude Sonnet for reasoning jobs, Haiku for condition evaluation |
+| Dhan account | First supported broker — credentials added at `/settings` after install |
+
+---
+
+{% hint style="info" %}
+**Start with chat before automation.** The example app is most useful as a live conversation partner first. Ask the agent to look at your positions, fetch a quote, or explain a stock's technicals. Once you're comfortable with how it reasons and what tools it has, you'll be better placed to give it a Playbook and let it run autonomously.
+{% endhint %}
+
+---
+
+# Market Tooling
+
+> The bridge between the LLM and the market — the agent never reasons from stale training data.
+
+An LLM's training data has a cutoff. It doesn't know today's price of SBIN, whether Nifty is up or down, what news broke this morning, or what positions you currently hold. Market Tooling fixes this by giving the agent **20 built-in tools** that connect it to live market data and your broker — so every decision it makes is grounded in what's actually happening right now.
+
+---
+
+## Broker tools
+
+Vibe Trade ships with first-class support for **Dhan**. Additional brokers are on the roadmap. The API endpoints, request structures, and parsing logic are already handled. The agent calls plain-English actions; the primitive handles the broker-specific implementation.
+
+{% hint style="info" %}
+**Why maintained integrations matter:** Broker APIs change. Dhan moved from V1 to V2 — naive code generation, even from strong models, will sometimes call the wrong endpoint. Market Tooling maintains these integrations so tool calls don't silently fail.
+{% endhint %}
+
+| Tool | What it does | Approval required |
+|------|-------------|:-----------------:|
+| `get_quote` | Live price for one or more NSE equities or ETFs | — |
+| `get_index_quote` | Live price for any NSE index via IDX\_I segment | — |
+| `get_positions` | Current open positions with unrealised P\&L | — |
+| `get_funds` | Available margin and cash balance | — |
+| `get_orders` | Pending and filled orders for the session | — |
+| `place_order` | Place a buy or sell order — equity or ETF | **Yes** |
+| `cancel_order` | Cancel a pending order by order ID | **Yes** |
+
+---
+
+## Market data tools
+
+| Tool | What it does |
+|------|-------------|
+| `get_historical_data` | OHLCV candles for equities, ETFs, and indices across any timeframe |
+| `compute_indicators` | RSI, MACD, Bollinger Bands, SMA, EMA, ATR — computed from live OHLCV |
+| `get_fundamentals` | P/E, EPS, market cap, revenue — stocks only, via Yahoo Finance |
+| `get_etf_info` | Fund family, expense ratio, top 10 holdings, sector weights — ETFs only |
+| `fetch_news` | Latest market news from LiveMint RSS |
+| `get_market_status` | Whether the market is currently open or closed |
+| `is_trading_day` | Whether a given date is an NSE trading day |
+| `get_upcoming_holidays` | NSE holiday calendar |
+| `search_instruments` | Search for equities or ETFs by name or symbol |
+| `get_top_movers` | Top gainers and losers for any Nifty index |
+| `get_market_depth` | Level 2 order book — bids and offers with quantities |
+| `get_index_constituents` | All stocks in any NSE index with symbol, name, and industry |
+| `compare_stocks` | Side-by-side comparison of equities or indices across key metrics |
+
+---
+
+## Extensibility
+
+The built-in tools cover the most common data needs, but every trader has their own edge — a proprietary screener, an internal backtesting engine, a Bloomberg terminal. Vibe Trade will support registering custom tools by defining an endpoint, credentials, and a capability description the agent can read.
+
+{% hint style="warning" %}
+**Coming soon.** Custom tool registration is on the roadmap. Once available, any data source or capability you can describe can be added to the agent's toolkit.
+{% endhint %}
+
+---
+
+# Heartbeat
+
+> Continuous market monitoring without continuous LLM inference — a lightweight loop that wakes the agent only when something matters.
+
+Keeping an LLM running 24/7 is prohibitively expensive. But trading conditions don't wait — a stock might hit your entry price at 2:15pm on a Tuesday, and if nothing is watching, the moment passes. **Heartbeat decouples monitoring from reasoning.** A cheap process watches constantly. The LLM only runs when a condition fires.
+
+---
+
+## The tick
+
+Heartbeat runs on a fixed interval — every 30 seconds during market hours, slower when the market is closed. On each tick:
+
+**1. Build a dynamic snapshot**
+
+Fetch live prices for every symbol currently held and every symbol referenced in an active trigger. Not the whole market — just what's being watched. The scope adjusts automatically as your positions and triggers change.
+
+**2. Evaluate all active triggers**
+
+Check every trigger condition against the snapshot. Code conditions are evaluated in pure JavaScript — no LLM, no cost. LLM conditions are sent to a lightweight model (Haiku) with a single yes/no question.
+
+**3. Wake the agent — or stand down**
+
+If a condition fired: spin up the main agent with the full snapshot and Playbook context. If nothing fired: no LLM call, no cost. Quiet tick until the next interval.
+
+---
+
+## Evaluation cost by condition type
+
+| Condition mode | Evaluated by | Cost per tick | Example |
+|---------------|:------------:|:-------------:|---------|
+| `code` | JavaScript | Near zero | `quotes['HINDALCO'].lastPrice >= 964` |
+| `event` | System listener | Zero | `position_opened`, `nifty_drop_percent` |
+| `time` | Cron scheduler | Zero | `20 9 * * 1-5` — weekdays at 9:20am |
+| `llm` | Haiku (yes/no) | Minimal | "Is any open position showing unusual movement?" |
+
+The `llm` condition mode is what makes Heartbeat qualitatively different from a traditional rules engine. The agent can set instinct-based triggers — not just coded equations — and the cost of monitoring them stays negligible.
+
+---
+
+# Triggers
+
+> The automation primitive — every autonomous action the agent takes originates from a trigger.
+
+A trigger is a condition and an action. When the condition becomes true, the action fires. There are no separate concepts called "schedules" or "reminders" — a cron expression is just a time-based condition, and everything resolves to the same two questions: _when should this run?_ and _what should happen when it does?_
+
+---
+
+## Anatomy of a trigger
+
+Every trigger has the same shape. Here is a real stop-loss trigger from a live intraday session:
+
+```json
+{
+  "id": "2da93e8b-59c1-4493-ab64-685840048aeb",
+  "name": "HINDALCO Short — Stop Loss ₹964",
+  "scope": "symbol",
+  "watchSymbols": ["HINDALCO"],
+
+  "condition": {
+    "mode": "code",
+    "expression": "quotes['HINDALCO'].lastPrice >= 964"
+  },
+
+  "action": {
+    "type": "hard_order",
+    "tradeArgs": {
+      "symbol": "HINDALCO",
+      "transaction_type": "BUY",
+      "quantity": 3,
+      "order_type": "MARKET"
+    }
+  },
+
+  "expiresAt": "2026-03-11T15:15:00+05:30",
+  "context": "Stop loss for intraday short. Entry SHORT 3 shares @ ₹957.95. Cover if price hits ₹964.",
+  "status": "active"
+}
+```
+
+---
+
+## Condition modes
+
+| Mode | When it fires | Typical use |
+|------|--------------|-------------|
+| `code` | When a JavaScript expression evaluates to `true` against the live snapshot | Stop-loss, price targets, drawdown guards |
+| `event` | When a named system event occurs | Position opened/closed, index move threshold |
+| `time` | On a cron schedule | Morning scans, position monitors, EOD closes |
+| `llm` | When Haiku answers "yes" to a natural language question | Instinct-based conditions not expressible as a formula |
+
+---
+
+## Action types
+
+| Type | What happens | Agent involved? | Typical use |
+|------|-------------|:---------------:|-------------|
+| `hard_order` | Trade executes immediately in pure code — no reasoning, no approval queue | No | Stop-losses, price targets, EOD hard closes |
+| `reasoning_job` | Agent wakes up with trigger context and Playbook loaded, reasons, may queue approvals | Yes | Morning scans, position monitors, re-entry decisions |
+
+{% hint style="info" %}
+**hard\_order vs reasoning\_job:** A stop-loss that fires a `reasoning_job` will wait for the agent to wake up, reason, and queue an approval. A stop-loss that fires a `hard_order` executes the moment the price condition is met. For hard guardrails, use `hard_order`. For anything requiring judgement, use `reasoning_job`.
+{% endhint %}
+
+---
+
+## A real trigger stack — Aggressive Alpha
+
+The full trigger architecture the agent built for itself when running the Aggressive Alpha intraday Playbook:
+
+| Trigger | Condition | Action | Scope |
+|---------|-----------|--------|-------|
+| Alpha SL — HINDALCO | `code` — price ≥ ₹964 | hard\_order BUY 3 MARKET | symbol |
+| Alpha Target — HINDALCO | `code` — price ≤ ₹948 | hard\_order BUY 3 MARKET | symbol |
+| Alpha Trail — HINDALCO | `code` — price ≤ ₹938 (+2% move) | reasoning\_job — move SL to breakeven | symbol |
+| Nifty Drop Guard | `event` — nifty\_drop\_percent ≥ 1% | reasoning\_job — review all longs | market |
+| Nifty Spike Guard | `event` — nifty\_rise\_percent ≥ 1% | reasoning\_job — review all shorts | market |
+| Re-entry Scanner | `event` — position\_closed | reasoning\_job — find next setup | portfolio |
+| Correlated Drawdown Guard | `code` — 2+ positions losing >0.75% simultaneously | reasoning\_job — review exposure | portfolio |
+| Time Stop Review | `code` — any position <0.5% move after 90 min | reasoning\_job — evaluate dead weight | portfolio |
+| Position Monitor | `time` — every 30 min, 9:20am–3:10pm | reasoning\_job — VWAP, RSI, volume check | portfolio |
+| EOD Hard Close | `time` — 3:10pm daily | reasoning\_job — close all positions | portfolio |
+
+The agent registered all of these itself. You described the strategy. The agent built the automation stack.
+
+---
+
+# Permissions
+
+> The trust primitive — a code-level approval gate that ensures no money moves without recorded consent.
+
+Giving an AI access to your trading account is a meaningful act of trust. The obvious failure mode is an agent that acts on your money without your knowledge. But there's a subtler failure mode: an agent that _asks_ for permission in chat, you say "yes", and that's treated as authorisation. That's gameable, ambiguous, and not a real record of consent.
+
+**The core principle: no trade can be placed without explicit, recorded consent.** What consent looks like depends on how much autonomy you've chosen to give the agent.
+
+---
+
+## The approval gate
+
+Every `reasoning_job` that wants to place a trade must submit a request to the approval gate. The agent cannot bypass this. Even when it has concluded a trade is the right move, it can only queue the request — not execute it.
+
+The request arrives as a structured approval card: the exact trade, the full reasoning behind it, and the context that led to the decision.
+
+### A real approval card
+
+Here is a real card from a live session — the agent's recommendation to exit a short ONGC position:
+
+```
+APPROVAL REQUEST · Aggressive Alpha — Position Monitor
+
+Trade:   SELL · ONGC · 11 shares · MARKET · Close SHORT
+Entry:   ₹269.00   LTP: ₹271.75   Unrealised: −₹30.25
+
+🔴 EXIT SIGNAL — 3 SIGNALS FIRED
+
+SIGNAL 1 — RSI DETERIORATION
+RSI has risen to 56.52, crossing the 55 ceiling for short momentum.
+The downside thesis is losing steam — buyers are stepping in.
+
+SIGNAL 2 — RECOVERY WITH ELEVATED VOLUME
+Last two candles (179K, 260K) showed high-volume bouncing action.
+Price recovering from ₹271.2 back to ₹271.75. A SHORT needs sellers
+in control; this shows the opposite.
+
+SIGNAL 3 — POST-1PM LOSS WITH NO CATALYST
+It is 13:30 IST. Position is at −1.02% with no news driving ONGC
+lower. Hard SL at ₹273.04 is only ₹1.29 away. Holding risks a −1.5%
+loss; exiting now limits damage to −1.02%.
+
+RECOMMENDATION: Exit now. Saves ~₹5.30/share vs hitting the hard SL.
+
+[ ✓ Approve ]  [ ✗ Reject ]
+```
+
+This is not a chat confirmation. It is a timestamped, structured record — linked to the Playbook, the trigger that fired, and the agent's reasoning at the moment of decision.
+
+---
+
+## Three levels of consent
+
+### In-chat execution
+
+You're in a live conversation and ask the agent to act. Even so, it raises a formal approval card — not a chat reply. The gate is always present, even in active sessions.
+
+### Async approval
+
+A trigger fires while you're away from your desk. The agent queues the approval and waits. Mobile delivery — WhatsApp, Telegram — is on the roadmap, so you can approve or reject from your phone without opening the app.
+
+### Autonomous execution
+
+Available only within a Playbook, with explicit guardrails defined upfront: maximum capital, maximum loss, circuit-breakers like _"if two stop-losses hit today, halt all new entries."_ Consent was given when you set the rules. The agent operates within that mandate and cannot exceed it.
+
+---
+
+## hard\_order and the pre-authorisation model
+
+Some triggers bypass the approval queue entirely. A `hard_order` trigger — used for stop-losses and price targets — executes the moment its condition is met, with no agent involvement and no approval step. This is by design: a stop-loss that waits for your phone tap is not a stop-loss.
+
+The consent for a `hard_order` is given when you create the trigger. The execution is the fulfilment of a decision you already made.
+
+| Consent type | When given | Where recorded |
+|-------------|------------|----------------|
+| Trade-level | At execution time — per trade | Approval queue — Approve / Reject |
+| Trigger-level | When the hard\_order trigger is created | Trigger record — condition + tradeArgs |
+| Autonomous | When Playbook guardrails are defined | Playbook document — mandate boundaries |
+
+---
+
+# Playbooks
+
+> The agent's operating manual — a written strategy document that anchors every decision made on its behalf.
+
+Every new LLM session starts from zero. Without a Playbook, ask the agent whether to buy Infosys today, close the tab, ask again tomorrow — and you might get a different answer. One instance looks at volatility and says wait. Another looks at fundamentals and says buy. Neither is wrong, but neither is _yours_. There's no consistent thesis, no discipline, no record of what you were trying to achieve.
+
+**A Playbook is the document that fixes this.** It is a written strategy that the agent receives as context on every run — whether triggered by a schedule, a price condition, or a live chat. The agent reasons as: _"I am running this Playbook. These are my rules. Given what I can see right now, here is what I should do."_
+
+---
+
+## What a Playbook contains
+
+A Playbook is a markdown document. There is no rigid schema — you write it the way you'd brief a portfolio manager. In practice, effective Playbooks cover four things:
+
+| Section | What it captures | Example |
+|---------|-----------------|---------|
+| Investment thesis | Why you're trading this and what you believe | "Maximise intraday P\&L by keeping capital deployed across 3 slots, trading momentum/breakout setups on liquid Nifty 100 stocks in both directions" |
+| Rules and constraints | What the agent must and must not do | "No new entries after 2:30 PM. Skip entry if balance < ₹2,000. VIX > 22: use tighter SL parameters" |
+| Entry and exit approach | How the agent identifies and sizes trades | "LONG: price above VWAP, RSI 45–65, breaking above opening range high. Quantity = slot capital / price, round down" |
+| Capital allocation | How much is deployed and how it's split | "Slot A: ₹3,000 · Slot B: ₹3,000 · Slot C: ₹2,500 · Reserve: ₹500 (never deployed)" |
+
+You don't write this from scratch. You describe your intent in plain English, the agent helps you shape it into a document, and once you agree — it becomes the operating manual.
+
+---
+
+## What a Playbook adds
+
+| Feature | |
+|---------|-|
+| Consistent agent identity | Every trigger and schedule tied to this Playbook loads the same document. The agent always knows which programme it's running. |
+| Isolated P\&L tracking | Trades tagged to a Playbook are tracked separately. You can see exactly how a thesis is performing over time. |
+| Capital allocation bounds | The Playbook specifies what's allocated. The agent reasons within those bounds and won't exceed them. |
+| Playbook state | The agent reads and updates state — `scanning`, `paused`, `position_open` — so each run picks up where the last one left off. |
+| Scoped Learnings | Observations and lessons are tagged to the Playbook they came from. Performance review is always in context of the specific thesis. |
+
+---
+
+## Playbook record
+
+The actual record for Aggressive Alpha — the live intraday strategy used throughout these docs:
+
+```json
+{
+  "id": "84f56962-0f6b-4d71-b1ec-4c9721f88fdb",
+  "name": "Aggressive Alpha",
+  "description": "Aggressive intraday long/short momentum strategy trading up to 3 concurrent positions across Nifty 100 stocks, always keeping capital deployed.",
+  "allocation": 9000,
+  "state": "scanning",
+  "status": "active",
+  "plan": "## Aggressive Alpha — Intraday Long/Short Momentum Strategy\n\n...",
+  "createdAt": "2026-03-10T17:09:16.796Z",
+  "updatedAt": "2026-03-11T07:31:15.671Z"
+}
+```
+
+The `state` field is written by the agent at the end of each run. Each subsequent run picks up from it — no context is lost between sessions.
+
+---
+
+# Learnings
+
+> The agent's audit trail and compounding memory — an immutable record of every trade, every decision, and everything distilled from both.
+
+LLMs don't naturally remember what they did. Ask an agent why it bought a stock last Tuesday and it may confabulate a reason, or simply not know. This is a foundational problem when AI is acting on your money: you need a ground truth it can't rewrite.
+
+Beyond accountability, there's a compounding problem: without a record of what worked and what didn't, the agent makes the same mistakes indefinitely. **Learnings solves both.**
+
+---
+
+## The trade journal
+
+Every order placed through Vibe Trade is written to an immutable trade record. Each entry captures what happened, when, and — critically — why the agent decided to act.
+
+```json
+[
+  {
+    "id": "6b2029a0-81e1-443f-85cd-e9f377182391",
+    "symbol": "ONGC",
+    "transactionType": "SELL",
+    "quantity": 11,
+    "executedPrice": 269.00,
+    "status": "filled",
+    "strategyId": "84f56962-0f6b-4d71-b1ec-4c9721f88fdb",
+    "note": "Aggressive Alpha — Slot B SHORT. Below VWAP all session, RSI 45 falling, MACD negative, weak oil sector on bearish day. SL: ₹273.04, Target: ₹262.28",
+    "filledAt": "2026-03-11 10:19:12"
+  },
+  {
+    "id": "0c616b25-8f1b-4ea1-a2b8-4ddf3c4e0621",
+    "symbol": "COALINDIA",
+    "transactionType": "BUY",
+    "quantity": 5,
+    "executedPrice": 446.90,
+    "status": "filled",
+    "strategyId": "84f56962-0f6b-4d71-b1ec-4c9721f88fdb",
+    "note": "Aggressive Alpha — Slot C LONG. Gapped up at open, holding above VWAP, RSI 56 with room to run, MACD positive. SL: ₹440.00, Target: ₹457.77",
+    "filledAt": "2026-03-11 10:19:14"
+  }
+]
+```
+
+The `note` field is written by the agent at the moment of entry — the reasoning it used to make the decision, not a post-hoc summary. Every trade is auditable back to the exact thesis the agent was running at the time.
+
+---
+
+## Playbook-level vs. global
+
+Every record is tagged. Trades, trigger runs, and observations are all linked to the Playbook they belong to — or marked global if they weren't part of one.
+
+**Playbook-scoped:** Did the strategy stay true to its rules? Where did it overtrade? Where did it miss entries? All answerable by filtering to the Playbook's history.
+
+**Global observations:** Patterns that apply across all Playbooks — market-wide timing, instrument behaviour, model tendencies. Cross-strategy insights live here separately.
+
+---
+
+## Compounding edge
+
+At the end of each trading day, the agent reviews its history — reading through the trades placed, the reasoning written at the time, and the outcomes — and distils learnings from that review. A learning might propose tightening an entry condition, adjusting a rebalancing cadence, or flagging a pattern the agent kept getting wrong. Proposed changes require your approval; the agent does not edit the Playbook unilaterally.
+
+{% hint style="warning" %}
+**End-of-day distillation is coming soon.** The trade journal and audit trail are live today. The automated end-of-day review loop — where the agent reads its history and surfaces proposed learnings — is actively being built.
+{% endhint %}
+
+---
+
+# Skills
+
+{% hint style="warning" %}
+**Coming soon.** Skills are actively being built. The architecture is designed for them — the Playbook context window already supports additional instruction modules.
+{% endhint %}
+
+> Reusable instruction modules that personalise how the agent behaves for specific tasks — loaded when relevant, ignored when not.
+
+A [Playbook](playbooks.md) defines what you're trying to achieve. A Skill defines _how_ you like a specific recurring task done. Where a Playbook is the strategy, a Skill is the technique.
+
+If you have a particular way of sizing positions, a checklist you run before entering a momentum trade, or a preference for how exit reasoning gets presented — that's a Skill. You write it once, and the agent reaches for it whenever that task comes up.
+
+---
+
+## What a Skill looks like
+
+A Skill is a markdown file: a name, a description the agent uses to decide when to reach for it, and the instruction content. The format is identical to Claude's skill files — intentionally familiar.
+
+```markdown
+---
+name: position-sizing
+description: How I calculate position size for intraday trades. Use this
+             whenever you need to determine quantity for a new entry.
+---
+
+Always size by risk, not by capital.
+
+1. Determine the stop-loss distance in rupees (entry price - SL price for longs)
+2. Risk per trade = 1% of available capital
+3. Quantity = risk per trade / stop-loss distance, rounded down
+4. Minimum 1 share. If quantity rounds to 0, skip the trade.
+5. Never exceed 25% of available capital in a single position.
+
+For intraday trades, always use INTRADAY product type. Never CNC.
+```
+
+The `description` field is what the agent reads to decide whether to reach for this Skill. Write it the way you'd explain to someone _when_ this instruction applies, not just what it contains.
+
+---
+
+## How Skills are loaded
+
+| Context | Which Skills are available |
+|---------|---------------------------|
+| Live chat | All Skills in your library — the agent can reach for any of them freely |
+| Playbook run (trigger or schedule) | Only Skills attached to that Playbook — clean isolation between strategies |
+
+This mirrors how Skills work in Claude Code: you configure which Skills are available per project, and the model decides when they're relevant. Attach Skills to a Playbook the way you load Skills into a project.
+
+---
+
+# Primitives at a Glance
+
+| # | Primitive | What it gives the agent | Without it |
+|---|-----------|------------------------|------------|
+| 01 | [Market Tooling](primitives/market-tooling.md) | Live data and broker execution — 20 built-in tools, never reasoning from stale training data | Agent reasons in the dark; can't act on the market |
+| 02 | [Heartbeat](primitives/heartbeat.md) | Always-on monitoring loop that wakes the agent only when a condition fires | Either runs 24/7 at full cost, or misses time-sensitive triggers entirely |
+| 03 | [Triggers](primitives/triggers.md) | A condition and an action — the automation primitive that drives everything | Agent runs once and is forgotten; nothing is automated |
+| 04 | [Permissions](primitives/permissions.md) | A code-level approval gate with three consent modes and a full audit trail | Agent acts without authorisation; no record of why |
+| 05 | [Playbooks](primitives/playbooks.md) | A persistent strategy document loaded as context on every agent run | Every session starts from zero; no consistent identity or rules |
+| 06 | [Learnings](primitives/learnings.md) | Immutable trade journal and compounding memory across every session | Agent makes the same mistakes indefinitely; no accountability |
+| 07 | [Skills](primitives/skills.md) | Reusable instruction modules for specific recurring tasks _(coming soon)_ | Agent applies generic behaviour to tasks you've already taught it how to do |
+
+---
+
+# Full Data Flow
+
+How a complete autonomous Playbook run flows through all the primitives — from Heartbeat tick to executed trade. This is a real session: Aggressive Alpha, 11 March 2026.
+
+---
+
+## Step by step
+
+### 1. Heartbeat — tick fires at 9:00am
+
+Live prices fetched for SBIN, ONGC, COALINDIA. Position Monitor trigger evaluated: condition is `time`, cron `*/30 9-15 * * 1-5` — fires.
+
+### 2. Triggers — reasoning\_job dispatched
+
+Action type is `reasoning_job`. Agent instance started with trigger context: _"You are running the Aggressive Alpha 30-minute position monitor…"_
+
+### 3. Playbooks — document loaded as system context
+
+Aggressive Alpha plan injected: entry rules, exit rules, capital allocation, guardrails. Agent knows which programme it's running.
+
+### 4. Market Tooling — agent reasons, tool calls made
+
+Calls `get_positions`, `get_quote` for all open symbols, `compute_indicators` (5-min RSI + VWAP). Evaluates RSI deterioration, volume fade, post-1pm criteria across ONGC SHORT.
+
+### 5. Permissions — approval card queued
+
+Three signals fired on ONGC SHORT: RSI deterioration, recovery with elevated volume, post-1pm loss with no catalyst. Full reasoning written to approval card. User approves at 13:32.
+
+### 6. Broker — trade placed via Market Tooling
+
+`place_order` called: BUY 11 ONGC MARKET (close short). Order filled at ₹271.75.
+
+### 7. Learnings — trade record written
+
+Immutable entry created: symbol, quantity, price, Playbook ID, and the full exit reasoning at the moment of decision. Tagged to Aggressive Alpha.
+
+---
+
+## The full session
+
+| Run | Time | Outcome |
+|-----|------|---------|
+| 1 | 9:00am | Queued ONGC exit — approved and filled |
+| 2 | 9:30am | No action needed — logged |
+| 3 | 10:00am | Queued exits for COALINDIA and HINDALCO |
+| 4 | 10:30am | Queued 1 further approval |
+
+Every run — whether it resulted in a trade or not — is recorded in full by [Learnings](primitives/learnings.md).
+
+---

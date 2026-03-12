@@ -1,0 +1,26 @@
+# Vibe Trade
+
+> Vibe Trade is an agentic trading harness. Six primitives give an LLM everything it needs to trade autonomously on your behalf — with live market data, automated monitoring, a structured permission system, and a compounding memory of every decision it makes.
+
+## Getting Started
+
+- [Introduction](https://raw.githubusercontent.com/YOUR_ORG/vibe-trade-site/main/docs/introduction.md): What Vibe Trade is, the harness concept, and the six primitives
+- [What is Vibe Trade?](https://raw.githubusercontent.com/YOUR_ORG/vibe-trade-site/main/docs/what-is-vibe-trade.md): The backend for agentic trading — what it gives you and why
+- [The Harness](https://raw.githubusercontent.com/YOUR_ORG/vibe-trade-site/main/docs/the-harness.md): How the primitives wrap around the LLM core reasoner
+- [How Primitives Connect](https://raw.githubusercontent.com/YOUR_ORG/vibe-trade-site/main/docs/how-primitives-connect.md): The runtime loop from Heartbeat tick to executed trade
+- [Example App](https://raw.githubusercontent.com/YOUR_ORG/vibe-trade-site/main/docs/example-app.md): Local chat app installable via npm — experiences all primitives in action
+
+## Primitives
+
+- [Market Tooling](https://raw.githubusercontent.com/YOUR_ORG/vibe-trade-site/main/primitives/market-tooling.md): 20 built-in tools connecting the agent to live market data and broker execution (Dhan). The agent never reasons from stale training data.
+- [Heartbeat](https://raw.githubusercontent.com/YOUR_ORG/vibe-trade-site/main/primitives/heartbeat.md): Lightweight monitoring loop that evaluates trigger conditions every 30s without running the LLM — wakes the agent only when something fires
+- [Triggers](https://raw.githubusercontent.com/YOUR_ORG/vibe-trade-site/main/primitives/triggers.md): Condition + action automation primitive. Condition modes: code, event, time, llm. Action types: hard_order (instant, no agent) and reasoning_job (wakes agent)
+- [Permissions](https://raw.githubusercontent.com/YOUR_ORG/vibe-trade-site/main/primitives/permissions.md): Code-level approval gate — no trade executes without recorded consent. Three consent levels: in-chat, async, autonomous
+- [Playbooks](https://raw.githubusercontent.com/YOUR_ORG/vibe-trade-site/main/primitives/playbooks.md): Persistent markdown strategy document loaded as context on every agent run — consistent identity, isolated P&L, capital allocation bounds
+- [Learnings](https://raw.githubusercontent.com/YOUR_ORG/vibe-trade-site/main/primitives/learnings.md): Immutable trade journal with agent reasoning captured at time of decision. Compounding memory across sessions.
+- [Skills](https://raw.githubusercontent.com/YOUR_ORG/vibe-trade-site/main/primitives/skills.md): Reusable instruction modules (coming soon) — scoped per Playbook or available globally in chat
+
+## Reference
+
+- [Primitives at a Glance](https://raw.githubusercontent.com/YOUR_ORG/vibe-trade-site/main/docs/primitives-at-a-glance.md): Quick reference table across all seven primitives
+- [Full Data Flow](https://raw.githubusercontent.com/YOUR_ORG/vibe-trade-site/main/docs/data-flow.md): End-to-end trace of a real Aggressive Alpha session — Heartbeat to filled order
