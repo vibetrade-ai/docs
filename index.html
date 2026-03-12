@@ -750,11 +750,11 @@ td.plain:first-child { font-family:var(--font-body); font-size:13.5px; white-spa
 <section class="doc-section" id="example-app">
   <div class="sec-hdr"><span class="badge b-green">example app</span></div>
   <h2>Vibe Trade App</h2>
-  <p class="tagline">A local chat interface that puts all six primitives in your hands — the fastest way to understand what the harness actually does.</p>
+  <p class="tagline">A local chat interface and automation harness that puts all six primitives in your hands — the fastest way to understand what these docs describe in practice.</p>
 
-  <p>The Vibe Trade example app is a fully-featured chat application that connects to the same primitives described in these docs. It's the reference implementation: every concept here — Heartbeat, Triggers, Permissions, Playbooks, Learnings — is wired up and ready to use. Install it, connect your Dhan account, and the harness is live.</p>
+  <p>Vibe Trade is a fully-featured AI trading agent built on the harness described in this documentation. Every primitive — Heartbeat, Triggers, Permissions, Playbooks, Learnings — is wired up and running. Install it, connect your Dhan account, and the full harness is live.</p>
 
-  <p>It's designed as an <strong>experience</strong> first. You can talk to the agent, watch it reason in real time, approve or reject its trade suggestions, create Playbooks through conversation, and inspect everything it has done and why. It's also the foundation for building your own implementation on top of the primitives.</p>
+  <p>It's designed as an <strong>experience</strong> first. Talk to the agent, watch it reason in real time, approve or reject its trade suggestions, create Playbooks through conversation, and inspect every decision and the reasoning behind it.</p>
 
   <h3>Install and run</h3>
 
@@ -769,16 +769,16 @@ td.plain:first-child { font-family:var(--font-body); font-size:13.5px; white-spa
 <span class="p-dim"># Install globally via npm</span>
 <span class="p-prompt">$</span> <span class="p-cmd">npm install -g vibe-trade</span>
 
-<span class="p-dim"># Run the app</span>
-<span class="p-prompt">$</span> <span class="p-cmd">vibe-trade start</span>
+<span class="p-dim"># Start the app</span>
+<span class="p-prompt">$</span> <span class="p-cmd">vibetrade</span>
 
-<span class="p-green">✓</span> <span class="p-cmd">Vibe Trade running at</span> <span class="p-blue">http://localhost:3000</span>
-<span class="p-green">✓</span> <span class="p-cmd">Heartbeat loop</span>      <span class="p-yellow">waiting for market open</span>
-<span class="p-green">✓</span> <span class="p-cmd">Storage</span>             <span class="p-cmd">~/.vibe-trade/db.json</span>
-<span class="p-dim">  Connect your Dhan account at http://localhost:3000/settings</span></pre>
+<span class="p-green">✓</span> <span class="p-cmd">VibeTrade running at</span> <span class="p-blue">http://localhost:3001</span>
+<span class="p-dim">  Click http://localhost:3001 if it doesn't open automatically</span></pre>
   </div>
 
-  <p>The app runs entirely on your machine. Your Anthropic API key, your Dhan credentials, your trade history, your Playbooks — none of it leaves your local environment.</p>
+  <p>The browser opens automatically. Add your Anthropic API key and Dhan credentials at <code>http://localhost:3001/settings</code>.</p>
+
+  <p>The app runs entirely on your machine. Your API key, credentials, trade history, and Playbooks are stored in <code>~/.vibetrade/</code> and never leave your local environment.</p>
 
   <h3>What you can do with it</h3>
 
@@ -786,32 +786,32 @@ td.plain:first-child { font-family:var(--font-body); font-size:13.5px; white-spa
     <div class="fs">
       <div class="fs-icon">💬</div>
       <h4>Talk to your portfolio</h4>
-      <p>Ask the agent what's in your positions, how they're performing, what the market is doing. It has live access to everything.</p>
+      <p>Ask the agent what's in your positions, how they're performing, what the market is doing. It has 20 live tools — real prices, candles, indicators, order book, news.</p>
     </div>
     <div class="fs">
       <div class="fs-icon">📋</div>
       <h4>Create Playbooks in chat</h4>
-      <p>Describe your strategy. The agent helps you shape it into a structured Playbook document, then runs it autonomously from that point forward.</p>
+      <p>Describe your strategy in plain English. The agent shapes it into a structured Playbook — entry rules, exit criteria, capital allocation, guardrails — then runs it autonomously.</p>
     </div>
     <div class="fs">
       <div class="fs-icon">⚡</div>
       <h4>Watch triggers fire</h4>
-      <p>The Heartbeat loop runs in the background. When a condition fires, you see it — and if it's a reasoning job, you see the agent's full thought process.</p>
+      <p>The Heartbeat loop runs in the background every 30 seconds. When a condition fires, you see it — and if it spawns a reasoning job, you see the agent's full thought process.</p>
     </div>
     <div class="fs">
       <div class="fs-icon">✅</div>
       <h4>Approve trades in real time</h4>
-      <p>Every trade recommendation arrives as a structured approval card with full reasoning. One click to approve or reject.</p>
+      <p>Every trade recommendation arrives as a structured approval card with the exact order and every signal that led to it. One click to approve or reject.</p>
     </div>
     <div class="fs">
       <div class="fs-icon">📂</div>
       <h4>Review the trade journal</h4>
-      <p>Every decision, every reasoning trace, every outcome — logged and browsable. Filter by Playbook or by time.</p>
+      <p>Every decision, every reasoning trace, every outcome — logged and browsable by Playbook or time.</p>
     </div>
     <div class="fs">
       <div class="fs-icon">🔧</div>
       <h4>Configure without code</h4>
-      <p>Triggers, Playbooks, and permissions are all managed through the UI or through conversation. No config files to edit.</p>
+      <p>Triggers, Playbooks, and consent modes are all managed through the UI or through conversation.</p>
     </div>
   </div>
 
@@ -820,8 +820,8 @@ td.plain:first-child { font-family:var(--font-body); font-size:13.5px; white-spa
     <table>
       <thead><tr><th>Dependency</th><th>Notes</th></tr></thead>
       <tbody>
-        <tr><td>Node.js ≥ 18</td><td>The app runs as a local Node process</td></tr>
-        <tr><td>Anthropic API key</td><td>Powers the agent — Claude Sonnet for reasoning jobs, Haiku for condition evaluation</td></tr>
+        <tr><td>Node.js ≥ 20</td><td>The app runs as a local Node process</td></tr>
+        <tr><td>Anthropic API key</td><td>Claude Sonnet for reasoning jobs, Haiku for condition evaluation</td></tr>
         <tr><td>Dhan account</td><td>First supported broker — credentials added at <code>/settings</code> after install</td></tr>
       </tbody>
     </table>
@@ -829,7 +829,7 @@ td.plain:first-child { font-family:var(--font-body); font-size:13.5px; white-spa
 
   <div class="callout c-tip">
     <span class="callout-icon">✦</span>
-    <p><strong>Start with chat before automation.</strong> The example app is most useful as a live conversation partner first. Ask the agent to look at your positions, fetch a quote, or explain a stock's technicals. Once you're comfortable with how it reasons and what tools it has, you'll be better placed to give it a Playbook and let it run autonomously.</p>
+    <p><strong>Start with chat before automation.</strong> The app is most useful as a live conversation partner first. Ask the agent to look at your positions, fetch a quote, or explain a stock's technicals. Once you're comfortable with how it reasons and what tools it has, give it a Playbook and let it run autonomously.</p>
   </div>
 </section>
 
