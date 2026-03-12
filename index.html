@@ -318,6 +318,9 @@ td.plain:first-child { font-family:var(--font-body); font-size:13.5px; white-spa
   border-radius: var(--radius); padding: 28px 24px; margin: 24px 0;
   position: relative; overflow: hidden;
 }
+.diagram::-webkit-scrollbar { height: 6px; }
+.diagram::-webkit-scrollbar-track { background: transparent; }
+.diagram::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 .diagram::before {
   content: '';
   position: absolute; inset:0;
@@ -329,6 +332,17 @@ td.plain:first-child { font-family:var(--font-body); font-size:13.5px; white-spa
   color: var(--text-faint); text-transform: uppercase;
   letter-spacing: .08em; margin-bottom: 20px; text-align:center;
 }
+
+/* ── RESPONSIVE DIAGRAMS ── */
+.desktop-only { display: block !important; }
+.mobile-only { display: none !important; }
+
+@media (max-width: 768px) {
+  .desktop-only { display: none !important; }
+  .mobile-only { display: block !important; }
+  .diagram { padding: 24px 12px; overflow: hidden; }
+}
+
 .flow { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:0; row-gap:10px }
 .fn {
   background: var(--surface-2); border: 1px solid var(--border);
@@ -343,6 +357,57 @@ td.plain:first-child { font-family:var(--font-body); font-size:13.5px; white-spa
 .fn.yw { border-color:rgba(251,191,36,.25); color:var(--yellow); background:var(--yellow-dim) }
 .fn.rd { border-color:rgba(248,113,113,.25);color:var(--red);    background:var(--red-dim) }
 .fa { color:var(--text-faint); font-size:13px; padding:0 7px; flex-shrink:0 }
+
+/* ─── SPINE DIAGRAMS ──────────────────────── */
+.spine-diagram { display:flex; gap:0 16px; }
+.spine-line {
+  display:flex; flex-direction:column; align-items:center;
+  flex-shrink:0; width:28px; padding-top:4px;
+}
+.spine-dot {
+  width:10px; height:10px; border-radius:50%;
+  border:1.5px solid; background:var(--bg);
+  flex-shrink:0; position:relative; z-index:1;
+}
+.spine-connector { width:1px; flex:1; min-height:16px; background:var(--border); }
+.spine-steps { flex:1; display:flex; flex-direction:column; }
+.spine-step { display:flex; align-items:flex-start; padding-bottom:22px; }
+.spine-step:last-child { padding-bottom:0; }
+.spine-step-body { flex:1; padding-top:0; }
+.spine-step-header { display:flex; align-items:center; gap:10px; margin-bottom:5px; }
+.spine-step-num {
+  font-family:var(--font-mono); font-size:10px;
+  color:var(--text-faint); min-width:16px;
+}
+.spine-step-label {
+  font-family:var(--font-mono); font-size:10px;
+  text-transform:uppercase; letter-spacing:.07em;
+  padding:2px 7px; border-radius:4px; border:1px solid;
+}
+.spine-badge {
+  font-family:var(--font-mono); font-size:10px;
+  padding:2px 7px; border-radius:4px; border:1px solid;
+  margin-left:auto; white-space:nowrap;
+}
+.spine-step-title { font-size:13.5px; font-weight:500; color:var(--text); margin-bottom:3px; }
+.spine-step-desc  { font-size:12px; color:var(--text-muted); line-height:1.6; }
+.spine-fork { display:flex; gap:12px; margin-top:0; }
+.spine-fork-track {
+  flex:1; border:1px solid var(--border);
+  border-radius:8px; padding:12px 14px;
+}
+.spine-fork-track-title {
+  font-family:var(--font-mono); font-size:10px;
+  text-transform:uppercase; letter-spacing:.07em; margin-bottom:8px;
+}
+.spine-fork-item {
+  font-size:12px; color:var(--text-muted);
+  padding:5px 0; border-bottom:1px solid var(--border-subtle);
+  display:flex; align-items:center; gap:8px;
+}
+.spine-fork-item:last-child { border-bottom:none; padding-bottom:0; }
+.spine-fork-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+@media (max-width:520px) { .spine-fork { flex-direction:column; } }
 
 /* ─── CONSENT LEVELS ─────────────────────── */
 .consent-stack {
@@ -686,23 +751,145 @@ td.plain:first-child { font-family:var(--font-body); font-size:13.5px; white-spa
 
   <p>An LLM on its own is powerful but directionless for trading. It has no state, no time, no broker connection, no memory of what it did yesterday, and no guardrails on what it can do next. The harness provides all of that as a set of interlocking primitives. Remove any one of them and the agent either can't act, or acts without accountability.</p>
 
-  <div class="diagram">
-    <div class="diagram-title">The Vibe Trade Harness — primitives around the core reasoner</div>
-    <div style="display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;row-gap:12px">
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <div class="fn bl" style="min-width:136px"><strong>Market Tooling</strong><span class="sub">live data + broker</span></div>
-        <div class="fn gr" style="min-width:136px"><strong>Heartbeat</strong><span class="sub">monitoring loop</span></div>
-        <div class="fn yw" style="min-width:136px"><strong>Triggers</strong><span class="sub">when to act</span></div>
-      </div>
-      <div class="fn ac" style="min-width:100px;padding:22px 18px;font-size:15px"><strong>LLM</strong><span class="sub">core reasoner</span></div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <div class="fn rd" style="min-width:136px"><strong>Permissions</strong><span class="sub">approval gate</span></div>
-        <div class="fn yw" style="min-width:136px"><strong>Playbooks</strong><span class="sub">strategy + thesis</span></div>
-        <div class="fn"    style="min-width:136px"><strong>Learnings</strong><span class="sub">audit + memory</span></div>
-      </div>
-    </div>
-    <p style="text-align:center;margin:20px 0 0;font-size:12px;color:var(--text-faint);font-family:var(--font-mono)">The LLM reasons. The harness acts, remembers, and governs.</p>
-  </div>
+  <div class="diagram" style="padding: 24px 16px 20px;">
+  <div class="diagram-title">The Vibe Trade Harness</div>
+
+  <svg class="desktop-only" viewBox="0 0 660 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:660px;display:block;margin:0 auto;overflow:visible;" aria-label="The Vibe Trade Harness containment diagram">
+    <defs>
+      <marker id="h-arr-blue" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0.5 L0,6.5 L7,3.5 z" fill="rgba(96,165,250,0.55)"/></marker>
+      <marker id="h-arr-green" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0.5 L0,6.5 L7,3.5 z" fill="rgba(34,197,94,0.55)"/></marker>
+      <marker id="h-arr-yellow" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0.5 L0,6.5 L7,3.5 z" fill="rgba(251,191,36,0.55)"/></marker>
+      <marker id="h-arr-muted" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0.5 L0,6.5 L7,3.5 z" fill="rgba(113,113,122,0.45)"/></marker>
+      <marker id="h-arr-red" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0.5 L0,6.5 L7,3.5 z" fill="rgba(248,113,113,0.55)"/></marker>
+      <marker id="h-arr-faint" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0.5 L0,6.5 L7,3.5 z" fill="rgba(63,63,70,0.7)"/></marker>
+      <filter id="h-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="6" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <radialGradient id="h-center-glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(249,115,22,0.18)"/><stop offset="100%" stop-color="rgba(249,115,22,0)"/></radialGradient>
+    </defs>
+
+    <ellipse cx="330" cy="240" rx="90" ry="90" fill="url(#h-center-glow)"/>
+    <rect x="174" y="88" width="312" height="304" rx="36" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="16"/>
+    <rect x="174" y="88" width="312" height="304" rx="36" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" stroke-dasharray="6 6"/>
+    <text x="330" y="112" text-anchor="middle" font-size="9" font-family="'JetBrains Mono',monospace" fill="#3f3f46" letter-spacing="0.1em" font-weight="600">AGENT BOUNDARY</text>
+
+    <path d="M 174,116 Q 220,162 310,208" stroke="rgba(34,197,94,0.3)" stroke-width="1.5" fill="none" marker-end="url(#h-arr-green)"/>
+    <path d="M 486,116 Q 440,162 350,208" stroke="rgba(113,113,122,0.3)" stroke-width="1.5" fill="none" marker-end="url(#h-arr-muted)"/>
+    <path d="M 208,240 L 285,240" stroke="rgba(251,191,36,0.35)" stroke-width="1.5" fill="none" marker-end="url(#h-arr-yellow)"/>
+    <path d="M 375,240 L 452,240" stroke="rgba(63,63,70,0.5)" stroke-width="1.5" fill="none" stroke-dasharray="4 3" marker-end="url(#h-arr-faint)"/>
+    <path d="M 310,272 Q 242,318 174,364" stroke="rgba(248,113,113,0.35)" stroke-width="1.5" fill="none" marker-end="url(#h-arr-red)"/>
+    <path d="M 248,392 L 412,392" stroke="rgba(248,113,113,0.4)" stroke-width="2" fill="none" marker-end="url(#h-arr-red)"/>
+    <path d="M 486,364 Q 440,318 350,272" stroke="rgba(96,165,250,0.25)" stroke-width="1.5" fill="none" marker-end="url(#h-arr-blue)"/>
+    <path d="M 486,420 L 486,460" stroke="rgba(96,165,250,0.4)" stroke-width="1.5" fill="none" stroke-dasharray="4 2" marker-end="url(#h-arr-blue)"/>
+    <text x="486" y="475" text-anchor="middle" font-size="9" font-family="'JetBrains Mono',monospace" fill="#3f3f46" letter-spacing="0.05em">EXTERNAL BROKER API</text>
+
+    <path id="lp-sched" d="M 174,116 Q 220,162 310,208" fill="none"/>
+    <path id="lp-hb" d="M 350,208 Q 440,162 486,116" fill="none"/>
+    <path id="lp-strat" d="M 208,240 L 285,240" fill="none"/>
+    <path id="lp-learn" d="M 375,240 L 452,240" fill="none"/>
+    <path id="lp-perm" d="M 174,364 Q 242,318 310,272" fill="none"/>
+    <path id="lp-gate" d="M 248,392 L 412,392" fill="none"/>
+    <path id="lp-tool" d="M 350,272 Q 440,318 486,364" fill="none"/>
+
+    <text font-size="9" font-family="'JetBrains Mono',monospace" fill="rgba(34,197,94,0.6)" dy="-5"><textPath href="#lp-sched" startOffset="35%" text-anchor="middle">wakes agent</textPath></text>
+    <text font-size="9" font-family="'JetBrains Mono',monospace" fill="rgba(113,113,122,0.45)" dy="-5"><textPath href="#lp-hb" startOffset="65%" text-anchor="middle">wakes agent</textPath></text>
+    <text font-size="9" font-family="'JetBrains Mono',monospace" fill="rgba(251,191,36,0.55)" dy="-5"><textPath href="#lp-strat" startOffset="50%" text-anchor="middle">constrains</textPath></text>
+    <text font-size="9" font-family="'JetBrains Mono',monospace" fill="rgba(113,113,122,0.5)" dy="-5"><textPath href="#lp-learn" startOffset="50%" text-anchor="middle">records</textPath></text>
+    <text font-size="9" font-family="'JetBrains Mono',monospace" fill="rgba(248,113,113,0.6)" dy="-5"><textPath href="#lp-perm" startOffset="65%" text-anchor="middle">trade request</textPath></text>
+    <text font-size="9" font-family="'JetBrains Mono',monospace" fill="rgba(248,113,113,0.7)" dy="-5"><textPath href="#lp-gate" startOffset="50%" text-anchor="middle">unlocks execution</textPath></text>
+    <text font-size="9" font-family="'JetBrains Mono',monospace" fill="rgba(96,165,250,0.6)" dy="-5"><textPath href="#lp-tool" startOffset="35%" text-anchor="middle">feeds market data</textPath></text>
+
+    <rect x="285" y="208" width="90" height="64" rx="10" fill="rgba(249,115,22,0.1)" stroke="rgba(249,115,22,0.45)" stroke-width="1.5" filter="url(#h-glow)"/>
+    <text x="330" y="236" text-anchor="middle" font-size="15" font-weight="600" fill="#f97316" font-family="'JetBrains Mono',monospace" letter-spacing="-0.02em">LLM</text>
+    <text x="330" y="255" text-anchor="middle" font-size="10" fill="#71717a" font-family="'Geist',sans-serif" font-style="italic">core reasoner</text>
+
+    <rect x="100" y="60" width="148" height="56" rx="8" fill="rgba(34,197,94,0.07)" stroke="rgba(34,197,94,0.28)" stroke-width="1"/>
+    <text x="174" y="85" text-anchor="middle" font-size="12" font-weight="500" fill="#22c55e" font-family="'JetBrains Mono',monospace">Schedules</text>
+    <text x="174" y="102" text-anchor="middle" font-size="10.5" fill="#71717a" font-family="'Geist',sans-serif" font-style="italic">when to run</text>
+
+    <rect x="412" y="60" width="148" height="56" rx="8" fill="rgba(113,113,122,0.06)" stroke="rgba(113,113,122,0.22)" stroke-width="1"/>
+    <text x="486" y="85" text-anchor="middle" font-size="12" font-weight="500" fill="#a1a1aa" font-family="'JetBrains Mono',monospace">Heartbeat</text>
+    <text x="486" y="102" text-anchor="middle" font-size="10.5" fill="#71717a" font-family="'Geist',sans-serif" font-style="italic">monitoring loop</text>
+
+    <rect x="60" y="212" width="148" height="56" rx="8" fill="rgba(251,191,36,0.07)" stroke="rgba(251,191,36,0.28)" stroke-width="1"/>
+    <text x="134" y="237" text-anchor="middle" font-size="12" font-weight="500" fill="#fbbf24" font-family="'JetBrains Mono',monospace">Strategies</text>
+    <text x="134" y="254" text-anchor="middle" font-size="10.5" fill="#71717a" font-family="'Geist',sans-serif" font-style="italic">thesis + memory</text>
+
+    <rect x="452" y="212" width="148" height="56" rx="8" fill="rgba(113,113,122,0.04)" stroke="rgba(113,113,122,0.18)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="526" y="237" text-anchor="middle" font-size="12" font-weight="500" fill="#a1a1aa" font-family="'JetBrains Mono',monospace">Learnings</text>
+    <text x="526" y="254" text-anchor="middle" font-size="10.5" fill="#71717a" font-family="'Geist',sans-serif" font-style="italic">black book</text>
+
+    <rect x="100" y="364" width="148" height="56" rx="8" fill="rgba(248,113,113,0.07)" stroke="rgba(248,113,113,0.28)" stroke-width="1"/>
+    <text x="174" y="389" text-anchor="middle" font-size="12" font-weight="500" fill="#f87171" font-family="'JetBrains Mono',monospace">Permissions</text>
+    <text x="174" y="406" text-anchor="middle" font-size="10.5" fill="#71717a" font-family="'Geist',sans-serif" font-style="italic">approval gate</text>
+
+    <rect x="412" y="364" width="148" height="56" rx="8" fill="rgba(96,165,250,0.07)" stroke="rgba(96,165,250,0.28)" stroke-width="1"/>
+    <text x="486" y="389" text-anchor="middle" font-size="12" font-weight="500" fill="#60a5fa" font-family="'JetBrains Mono',monospace">Market Tooling</text>
+    <text x="486" y="406" text-anchor="middle" font-size="10.5" fill="#71717a" font-family="'Geist',sans-serif" font-style="italic">data + broker</text>
+  </svg>
+
+  <svg class="mobile-only" viewBox="0 0 320 620" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin:0 auto;overflow:visible;" aria-label="The Vibe Trade Harness mobile layout">
+    <defs>
+      <marker id="m-arr-blue" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0.5 L0,6.5 L7,3.5 z" fill="rgba(96,165,250,0.55)"/></marker>
+      <marker id="m-arr-green" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0.5 L0,6.5 L7,3.5 z" fill="rgba(34,197,94,0.55)"/></marker>
+      <marker id="m-arr-yellow" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0.5 L0,6.5 L7,3.5 z" fill="rgba(251,191,36,0.55)"/></marker>
+      <marker id="m-arr-muted" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0.5 L0,6.5 L7,3.5 z" fill="rgba(113,113,122,0.45)"/></marker>
+      <marker id="m-arr-red" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0.5 L0,6.5 L7,3.5 z" fill="rgba(248,113,113,0.55)"/></marker>
+      <marker id="m-arr-faint" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0.5 L0,6.5 L7,3.5 z" fill="rgba(63,63,70,0.7)"/></marker>
+      <filter id="m-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="6" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+
+    <rect x="15" y="15" width="290" height="520" rx="24" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="8"/>
+    <rect x="15" y="15" width="290" height="520" rx="24" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" stroke-dasharray="6 6"/>
+    <text x="160" y="32" text-anchor="middle" font-size="8" font-family="'JetBrains Mono',monospace" fill="#3f3f46" letter-spacing="0.1em" font-weight="600">AGENT BOUNDARY</text>
+
+    <path d="M 70 62 L 35 62 L 35 255 L 70 255" fill="none" stroke="rgba(34,197,94,0.3)" stroke-width="1.5" marker-end="url(#m-arr-green)"/>
+    <path d="M 250 122 L 285 122 L 285 255 L 250 255" fill="none" stroke="rgba(113,113,122,0.3)" stroke-width="1.5" marker-end="url(#m-arr-muted)"/>
+    <path d="M 160 204 L 160 240" fill="none" stroke="rgba(251,191,36,0.35)" stroke-width="1.5" marker-end="url(#m-arr-yellow)"/>
+    <path d="M 70 285 L 35 285 L 35 492 L 70 492" fill="none" stroke="rgba(63,63,70,0.5)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#m-arr-faint)"/>
+    <path d="M 160 304 L 160 340" fill="none" stroke="rgba(248,113,113,0.35)" stroke-width="1.5" marker-end="url(#m-arr-red)"/>
+    <path d="M 160 384 L 160 400" fill="none" stroke="rgba(248,113,113,0.4)" stroke-width="2" marker-end="url(#m-arr-red)"/>
+    <path d="M 250 422 L 285 422 L 285 285 L 250 285" fill="none" stroke="rgba(96,165,250,0.25)" stroke-width="1.5" marker-end="url(#m-arr-blue)"/>
+    <path d="M 160 444 L 160 455 L 280 455 L 280 545 L 160 545 L 160 560" fill="none" stroke="rgba(96,165,250,0.4)" stroke-width="1.5" stroke-dasharray="4 2" stroke-linejoin="round" marker-end="url(#m-arr-blue)"/>
+    <text x="160" y="580" text-anchor="middle" font-size="9" font-family="'JetBrains Mono',monospace" fill="#3f3f46" letter-spacing="0.05em">EXTERNAL BROKER API</text>
+
+    <path id="mp-sched" d="M 70 62 L 35 62 L 35 255 L 70 255" fill="none"/>
+    <path id="mp-hb" d="M 250 122 L 285 122 L 285 255 L 250 255" fill="none"/>
+    <path id="mp-learn" d="M 70 285 L 35 285 L 35 492 L 70 492" fill="none"/>
+    <path id="mp-tool" d="M 250 422 L 285 422 L 285 285 L 250 285" fill="none"/>
+
+    <text font-size="8" font-family="'JetBrains Mono',monospace" fill="rgba(34,197,94,0.6)" dy="-4"><textPath href="#mp-sched" startOffset="50%" text-anchor="middle">wakes agent</textPath></text>
+    <text font-size="8" font-family="'JetBrains Mono',monospace" fill="rgba(113,113,122,0.45)" dy="-4"><textPath href="#mp-hb" startOffset="50%" text-anchor="middle">wakes agent</textPath></text>
+    <text font-size="8" font-family="'JetBrains Mono',monospace" fill="rgba(113,113,122,0.5)" dy="-4"><textPath href="#mp-learn" startOffset="50%" text-anchor="middle">records</textPath></text>
+    <text font-size="8" font-family="'JetBrains Mono',monospace" fill="rgba(96,165,250,0.6)" dy="-4"><textPath href="#mp-tool" startOffset="50%" text-anchor="middle">feeds data</textPath></text>
+
+    <rect x="70" y="240" width="180" height="64" rx="10" fill="rgba(249,115,22,0.1)" stroke="rgba(249,115,22,0.45)" stroke-width="1.5" filter="url(#m-glow)"/>
+    <text x="160" y="268" text-anchor="middle" font-size="14" font-weight="600" fill="#f97316" font-family="'JetBrains Mono',monospace" letter-spacing="-0.02em">LLM</text>
+    <text x="160" y="286" text-anchor="middle" font-size="10" fill="#71717a" font-family="'Geist',sans-serif" font-style="italic">core reasoner</text>
+
+    <rect x="70" y="40" width="180" height="44" rx="6" fill="rgba(34,197,94,0.07)" stroke="rgba(34,197,94,0.28)" stroke-width="1"/>
+    <text x="160" y="58" text-anchor="middle" font-size="11" font-weight="500" fill="#22c55e" font-family="'JetBrains Mono',monospace">Schedules</text>
+    <text x="160" y="72" text-anchor="middle" font-size="9" fill="#71717a" font-family="'Geist',sans-serif" font-style="italic">when to run</text>
+
+    <rect x="70" y="100" width="180" height="44" rx="6" fill="rgba(113,113,122,0.06)" stroke="rgba(113,113,122,0.22)" stroke-width="1"/>
+    <text x="160" y="118" text-anchor="middle" font-size="11" font-weight="500" fill="#a1a1aa" font-family="'JetBrains Mono',monospace">Heartbeat</text>
+    <text x="160" y="132" text-anchor="middle" font-size="9" fill="#71717a" font-family="'Geist',sans-serif" font-style="italic">monitoring loop</text>
+
+    <rect x="70" y="160" width="180" height="44" rx="6" fill="rgba(251,191,36,0.07)" stroke="rgba(251,191,36,0.28)" stroke-width="1"/>
+    <text x="160" y="178" text-anchor="middle" font-size="11" font-weight="500" fill="#fbbf24" font-family="'JetBrains Mono',monospace">Strategies</text>
+    <text x="160" y="192" text-anchor="middle" font-size="9" fill="#71717a" font-family="'Geist',sans-serif" font-style="italic">thesis + memory</text>
+
+    <rect x="70" y="340" width="180" height="44" rx="6" fill="rgba(248,113,113,0.07)" stroke="rgba(248,113,113,0.28)" stroke-width="1"/>
+    <text x="160" y="358" text-anchor="middle" font-size="11" font-weight="500" fill="#f87171" font-family="'JetBrains Mono',monospace">Permissions</text>
+    <text x="160" y="372" text-anchor="middle" font-size="9" fill="#71717a" font-family="'Geist',sans-serif" font-style="italic">approval gate</text>
+
+    <rect x="70" y="400" width="180" height="44" rx="6" fill="rgba(96,165,250,0.07)" stroke="rgba(96,165,250,0.28)" stroke-width="1"/>
+    <text x="160" y="418" text-anchor="middle" font-size="11" font-weight="500" fill="#60a5fa" font-family="'JetBrains Mono',monospace">Market Tooling</text>
+    <text x="160" y="432" text-anchor="middle" font-size="9" fill="#71717a" font-family="'Geist',sans-serif" font-style="italic">data + broker</text>
+
+    <rect x="70" y="470" width="180" height="44" rx="6" fill="rgba(113,113,122,0.04)" stroke="rgba(113,113,122,0.18)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="160" y="488" text-anchor="middle" font-size="11" font-weight="500" fill="#a1a1aa" font-family="'JetBrains Mono',monospace">Learnings</text>
+    <text x="160" y="502" text-anchor="middle" font-size="9" fill="#71717a" font-family="'Geist',sans-serif" font-style="italic">black book</text>
+  </svg>
+</div>
 </section>
 
 <!-- ─── HOW PRIMITIVES CONNECT ───────────── -->
@@ -712,23 +899,84 @@ td.plain:first-child { font-family:var(--font-body); font-size:13.5px; white-spa
   <p>The six primitives aren't independent modules — they compose into a single runtime loop. Here is the path for an autonomous Playbook run:</p>
 
   <div class="diagram">
-    <div class="diagram-title">Runtime loop — trigger to executed trade</div>
-    <div class="flow">
-      <div class="fn gr"><strong>Heartbeat</strong><span class="sub">tick every 30s</span></div>
-      <div class="fa">→</div>
-      <div class="fn bl"><strong>Market snapshot</strong><span class="sub">watched symbols</span></div>
-      <div class="fa">→</div>
-      <div class="fn yw"><strong>Trigger fires</strong><span class="sub">condition met</span></div>
-      <div class="fa">→</div>
-      <div class="fn yw"><strong>Playbook loaded</strong><span class="sub">thesis in context</span></div>
-      <div class="fa">→</div>
-      <div class="fn ac"><strong>LLM reasons</strong><span class="sub">tools called</span></div>
-      <div class="fa">→</div>
-      <div class="fn rd"><strong>Permissions gate</strong><span class="sub">approve / reject</span></div>
-      <div class="fa">→</div>
-      <div class="fn gr"><strong>Trade placed</strong><span class="sub">broker executes</span></div>
+    <div class="diagram-title">Runtime loop — autonomous strategy execution</div>
+    <div class="spine-diagram">
+      <div class="spine-line">
+        <div class="spine-dot" style="border-color:#a78bfa;"></div>
+        <div class="spine-connector"></div>
+        <div class="spine-dot" style="border-color:#3f3f46;"></div>
+        <div class="spine-connector"></div>
+        <div class="spine-dot" style="border-color:#fbbf24;"></div>
+        <div class="spine-connector"></div>
+        <div class="spine-dot" style="border-color:#4DFF4D;background:rgba(77,255,77,0.08);"></div>
+        <div class="spine-connector"></div>
+        <div class="spine-dot" style="border-color:#f87171;"></div>
+        <div class="spine-connector"></div>
+        <div class="spine-dot" style="border-color:#22c55e;background:rgba(34,197,94,0.08);"></div>
+      </div>
+      <div class="spine-steps">
+        <div class="spine-step">
+          <div class="spine-step-body">
+            <div class="spine-step-header">
+              <span class="spine-step-num">01</span>
+              <span class="spine-step-label" style="color:#a78bfa;border-color:rgba(167,139,250,0.25);background:rgba(167,139,250,0.07);">Heartbeat</span>
+            </div>
+            <div class="spine-step-title">Tick fires, snapshot built</div>
+            <div class="spine-step-desc">Prices and conditions fetched for all watched symbols. Evaluated every 30s during market hours.</div>
+          </div>
+        </div>
+        <div class="spine-step">
+          <div class="spine-step-body">
+            <div class="spine-step-header">
+              <span class="spine-step-num">02</span>
+              <span class="spine-step-label" style="color:#71717a;border-color:rgba(113,113,122,0.25);background:rgba(113,113,122,0.07);">Condition</span>
+            </div>
+            <div class="spine-step-title">Trigger condition evaluated</div>
+            <div class="spine-step-desc">Deterministic conditions checked in code. Fuzzy conditions passed to a lightweight model for a yes/no answer. If nothing fires — quiet tick, no LLM call.</div>
+          </div>
+        </div>
+        <div class="spine-step">
+          <div class="spine-step-body">
+            <div class="spine-step-header">
+              <span class="spine-step-num">03</span>
+              <span class="spine-step-label" style="color:#fbbf24;border-color:rgba(251,191,36,0.25);background:rgba(251,191,36,0.07);">Strategy</span>
+            </div>
+            <div class="spine-step-title">Agent wakes, strategy loaded</div>
+            <div class="spine-step-desc">Main agent starts with the full snapshot and the strategy thesis document in context. The agent knows its mandate, constraints, and capital rules.</div>
+          </div>
+        </div>
+        <div class="spine-step">
+          <div class="spine-step-body">
+            <div class="spine-step-header">
+              <span class="spine-step-num">04</span>
+              <span class="spine-step-label" style="color:#4DFF4D;border-color:rgba(77,255,77,0.3);background:rgba(77,255,77,0.07);">LLM</span>
+            </div>
+            <div class="spine-step-title">LLM reasons, market tooling called</div>
+            <div class="spine-step-desc">Agent fetches quotes, news, and positions. Synthesises a decision — trade or stand down — with full reasoning.</div>
+          </div>
+        </div>
+        <div class="spine-step">
+          <div class="spine-step-body">
+            <div class="spine-step-header">
+              <span class="spine-step-num">05</span>
+              <span class="spine-step-label" style="color:#f87171;border-color:rgba(248,113,113,0.25);background:rgba(248,113,113,0.07);">Permissions</span>
+            </div>
+            <div class="spine-step-title">Approval gate evaluated</div>
+            <div class="spine-step-desc">Is this pre-authorised? Is autonomous mode active within budget? If yes — execute. If no — approval request sent via Telegram before anything moves.</div>
+          </div>
+        </div>
+        <div class="spine-step">
+          <div class="spine-step-body">
+            <div class="spine-step-header">
+              <span class="spine-step-num">06</span>
+              <span class="spine-step-label" style="color:#22c55e;border-color:rgba(34,197,94,0.25);background:rgba(34,197,94,0.07);">Broker</span>
+            </div>
+            <div class="spine-step-title">Trade placed, result logged</div>
+            <div class="spine-step-desc">Order sent via Market Tooling. Confirmation stored. Learnings records the full entry — what, when, why — regardless of outcome.</div>
+          </div>
+        </div>
+      </div>
     </div>
-    <p style="text-align:center;margin:16px 0 0;font-size:11px;color:var(--text-faint);font-family:var(--font-mono)">Learnings records every step — including runs where no trade is placed.</p>
   </div>
 
   <div class="table-wrap">
@@ -946,6 +1194,65 @@ td.plain:first-child { font-family:var(--font-body); font-size:13.5px; white-spa
   </div>
 
   <p>The <code>llm</code> condition mode is what makes Heartbeat qualitatively different from a traditional rules engine. The agent can set instinct-based triggers — not just coded equations — and the cost of monitoring them stays negligible.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">Heartbeat evaluation path per tick</div>
+    <div class="spine-diagram">
+      <div class="spine-line">
+        <div class="spine-dot" style="border-color:#22c55e;background:rgba(34,197,94,0.08);"></div>
+        <div class="spine-connector"></div>
+        <div class="spine-dot" style="border-color:#60a5fa;"></div>
+        <div class="spine-connector"></div>
+        <div class="spine-dot" style="border-color:#3f3f46;"></div>
+      </div>
+      <div class="spine-steps">
+        <div class="spine-step">
+          <div class="spine-step-body">
+            <div class="spine-step-header">
+              <span class="spine-step-num">01</span>
+              <span class="spine-step-label" style="color:#22c55e;border-color:rgba(34,197,94,0.25);background:rgba(34,197,94,0.07);">Tick</span>
+            </div>
+            <div class="spine-step-title">Interval fires</div>
+            <div class="spine-step-desc">Every 30s during market hours. Slower when the market is closed.</div>
+          </div>
+        </div>
+        <div class="spine-step">
+          <div class="spine-step-body">
+            <div class="spine-step-header">
+              <span class="spine-step-num">02</span>
+              <span class="spine-step-label" style="color:#60a5fa;border-color:rgba(96,165,250,0.25);background:rgba(96,165,250,0.07);">Snapshot</span>
+            </div>
+            <div class="spine-step-title">Market snapshot built</div>
+            <div class="spine-step-desc">Prices, fundamentals, and candles fetched only for watched symbols — not the whole market.</div>
+          </div>
+        </div>
+        <div class="spine-step">
+          <div class="spine-step-body">
+            <div class="spine-step-header">
+              <span class="spine-step-num">03</span>
+              <span class="spine-step-label" style="color:#71717a;border-color:rgba(113,113,122,0.25);background:rgba(113,113,122,0.07);">Evaluate</span>
+            </div>
+            <div class="spine-step-title">All active triggers evaluated</div>
+            <div class="spine-step-desc">Each trigger takes one of two paths depending on its condition type.</div>
+            <div class="spine-fork" style="margin-top:12px;">
+              <div class="spine-fork-track">
+                <div class="spine-fork-track-title" style="color:#f87171;">Deterministic</div>
+                <div class="spine-fork-item"><span class="spine-fork-dot" style="background:#f87171;"></span>Evaluated in pure code</div>
+                <div class="spine-fork-item"><span class="spine-fork-dot" style="background:#f87171;"></span>No LLM call — near-zero cost</div>
+                <div class="spine-fork-item"><span class="spine-fork-dot" style="background:#f87171;"></span>e.g. <em>BEL &lt; 280</em></div>
+              </div>
+              <div class="spine-fork-track">
+                <div class="spine-fork-track-title" style="color:#fbbf24;">Fuzzy</div>
+                <div class="spine-fork-item"><span class="spine-fork-dot" style="background:#fbbf24;"></span>Passed to Haiku for yes/no</div>
+                <div class="spine-fork-item"><span class="spine-fork-dot" style="background:#fbbf24;"></span>Minimal cost, not full agent</div>
+                <div class="spine-fork-item"><span class="spine-fork-dot" style="background:#fbbf24;"></span>e.g. <em>"market sentiment turning?"</em></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- ─── 3. TRIGGERS ───────────────────────── -->
@@ -1335,62 +1642,103 @@ For intraday trades, always use INTRADAY product type. Never CNC.</pre>
   <h2>Full Data Flow</h2>
   <p>How a complete autonomous Playbook run flows through all the primitives — from Heartbeat tick to executed trade. This is a real session: Aggressive Alpha, 11 March 2026.</p>
 
-  <div class="flow-steps-list">
-    <div class="flow-step">
-      <span class="flow-step-lbl">Heartbeat</span>
-      <div>
-        <div class="flow-step-title">Tick fires at 9:00am — snapshot built</div>
-        <div class="flow-step-desc">Live prices fetched for SBIN, ONGC, COALINDIA. Position Monitor trigger evaluated: condition is <code>time</code>, cron <code>*/30 9-15 * * 1-5</code> — fires.</div>
+  <div class="diagram">
+    <div class="diagram-title">End-to-end — strategy trigger to executed trade</div>
+    <div class="spine-diagram">
+      <div class="spine-line">
+        <div class="spine-dot" style="border-color:#a78bfa;"></div>
+        <div class="spine-connector"></div>
+        <div class="spine-dot" style="border-color:#22c55e;"></div>
+        <div class="spine-connector"></div>
+        <div class="spine-dot" style="border-color:#fbbf24;"></div>
+        <div class="spine-connector"></div>
+        <div class="spine-dot" style="border-color:#4DFF4D;background:rgba(77,255,77,0.08);"></div>
+        <div class="spine-connector"></div>
+        <div class="spine-dot" style="border-color:#f87171;"></div>
+        <div class="spine-connector"></div>
+        <div class="spine-dot" style="border-color:#22c55e;background:rgba(34,197,94,0.08);"></div>
+        <div class="spine-connector"></div>
+        <div class="spine-dot" style="border-color:#3f3f46;"></div>
       </div>
-      <span class="badge b-green" style="margin-left:auto;flex-shrink:0">fires</span>
-    </div>
-    <div class="flow-step">
-      <span class="flow-step-lbl">Triggers</span>
-      <div>
-        <div class="flow-step-title">Trigger dispatches a reasoning_job</div>
-        <div class="flow-step-desc">Action type is <code>reasoning_job</code>. Agent instance started with trigger context: "You are running the Aggressive Alpha 30-minute position monitor…"</div>
+      <div class="spine-steps">
+        <div class="spine-step">
+          <div class="spine-step-body">
+            <div class="spine-step-header">
+              <span class="spine-step-num">01</span>
+              <span class="spine-step-label" style="color:#a78bfa;border-color:rgba(167,139,250,0.25);background:rgba(167,139,250,0.07);">Heartbeat</span>
+              <span class="spine-badge" style="color:#22c55e;border-color:rgba(34,197,94,0.2);background:rgba(34,197,94,0.07);">deterministic</span>
+            </div>
+            <div class="spine-step-title">Tick fires, snapshot built</div>
+            <div class="spine-step-desc">Prices fetched for SBIN, ONGC, COALINDIA. Trigger condition evaluated: time cron <code>*/30 9-15 * * 1-5</code>.</div>
+          </div>
+        </div>
+        <div class="spine-step">
+          <div class="spine-step-body">
+            <div class="spine-step-header">
+              <span class="spine-step-num">02</span>
+              <span class="spine-step-label" style="color:#22c55e;border-color:rgba(34,197,94,0.25);background:rgba(34,197,94,0.07);">Schedule</span>
+              <span class="spine-badge" style="color:#4DFF4D;border-color:rgba(77,255,77,0.2);background:rgba(77,255,77,0.07);">fires</span>
+            </div>
+            <div class="spine-step-title">Trigger condition met — agent woken</div>
+            <div class="spine-step-desc">Trigger record updated. Agent instance started with trigger context and strategy ID.</div>
+          </div>
+        </div>
+        <div class="spine-step">
+          <div class="spine-step-body">
+            <div class="spine-step-header">
+              <span class="spine-step-num">03</span>
+              <span class="spine-step-label" style="color:#fbbf24;border-color:rgba(251,191,36,0.25);background:rgba(251,191,36,0.07);">Strategy</span>
+              <span class="spine-badge" style="color:#fbbf24;border-color:rgba(251,191,36,0.2);background:rgba(251,191,36,0.07);">loaded</span>
+            </div>
+            <div class="spine-step-title">Thesis document loaded as system context</div>
+            <div class="spine-step-desc">Agent knows it's running Aggressive Alpha. Rules, constraints, and capital allocation are all in context.</div>
+          </div>
+        </div>
+        <div class="spine-step">
+          <div class="spine-step-body">
+            <div class="spine-step-header">
+              <span class="spine-step-num">04</span>
+              <span class="spine-step-label" style="color:#4DFF4D;border-color:rgba(77,255,77,0.3);background:rgba(77,255,77,0.07);">Tooling</span>
+              <span class="spine-badge" style="color:#60a5fa;border-color:rgba(96,165,250,0.2);background:rgba(96,165,250,0.07);">tool calls</span>
+            </div>
+            <div class="spine-step-title">Agent reasons, tool calls made</div>
+            <div class="spine-step-desc">LLM calls <code>get_positions</code>, <code>get_quote</code>, <code>compute_indicators</code>. Evaluates RSI deterioration, volume fade, post-1pm criteria across ONGC SHORT.</div>
+          </div>
+        </div>
+        <div class="spine-step">
+          <div class="spine-step-body">
+            <div class="spine-step-header">
+              <span class="spine-step-num">05</span>
+              <span class="spine-step-label" style="color:#f87171;border-color:rgba(248,113,113,0.25);background:rgba(248,113,113,0.07);">Permissions</span>
+              <span class="spine-badge" style="color:#f87171;border-color:rgba(248,113,113,0.2);background:rgba(248,113,113,0.07);">gate</span>
+            </div>
+            <div class="spine-step-title">Approval gate evaluated</div>
+            <div class="spine-step-desc">3 signals fired on ONGC SHORT. Full reasoning written. Approval card queued — user approves at 13:32 via Telegram.</div>
+          </div>
+        </div>
+        <div class="spine-step">
+          <div class="spine-step-body">
+            <div class="spine-step-header">
+              <span class="spine-step-num">06</span>
+              <span class="spine-step-label" style="color:#22c55e;border-color:rgba(34,197,94,0.25);background:rgba(34,197,94,0.07);">Broker</span>
+              <span class="spine-badge" style="color:#22c55e;border-color:rgba(34,197,94,0.2);background:rgba(34,197,94,0.07);">executed</span>
+            </div>
+            <div class="spine-step-title">Trade placed via Market Tooling</div>
+            <div class="spine-step-desc"><code>place_order</code> called: BUY 11 ONGC MARKET (close short). Order filled at ₹271.75. Order ID 341260311280802.</div>
+          </div>
+        </div>
+        <div class="spine-step">
+          <div class="spine-step-body">
+            <div class="spine-step-header">
+              <span class="spine-step-num">07</span>
+              <span class="spine-step-label" style="color:#22d3ee;border-color:rgba(34,211,238,0.25);background:rgba(34,211,238,0.06);">Learnings</span>
+              <span class="spine-badge" style="color:#22d3ee;border-color:rgba(34,211,238,0.2);background:rgba(34,211,238,0.06);">logged</span>
+            </div>
+            <div class="spine-step-title">Full entry written to trade journal</div>
+            <div class="spine-step-desc">Symbol, quantity, price, Playbook ID, and the full exit reasoning at the moment of decision. Tagged to Aggressive Alpha. Available for end-of-day review.</div>
+          </div>
+        </div>
       </div>
-      <span class="badge b-yellow" style="margin-left:auto;flex-shrink:0">reasoning_job</span>
-    </div>
-    <div class="flow-step">
-      <span class="flow-step-lbl">Playbooks</span>
-      <div>
-        <div class="flow-step-title">Playbook document loaded as system context</div>
-        <div class="flow-step-desc">Aggressive Alpha plan injected: entry rules, exit rules, capital allocation, guardrails. Agent knows which programme it's running.</div>
-      </div>
-      <span class="badge b-yellow" style="margin-left:auto;flex-shrink:0">loaded</span>
-    </div>
-    <div class="flow-step">
-      <span class="flow-step-lbl">Market Tooling</span>
-      <div>
-        <div class="flow-step-title">Agent reasons — tool calls made</div>
-        <div class="flow-step-desc">Calls <code>get_positions</code>, <code>get_quote</code> for all open symbols, <code>compute_indicators</code> (5-min RSI + VWAP). Evaluates RSI deterioration, volume fade, post-1pm criteria across ONGC SHORT.</div>
-      </div>
-      <span class="badge b-blue" style="margin-left:auto;flex-shrink:0">tool calls</span>
-    </div>
-    <div class="flow-step" style="border-color:rgba(220,38,38,.2)">
-      <span class="flow-step-lbl">Permissions</span>
-      <div>
-        <div class="flow-step-title">Approval card queued — 3 signals fired on ONGC SHORT</div>
-        <div class="flow-step-desc">RSI deterioration, recovery with elevated volume, post-1pm loss. Full reasoning written. Card appears in approval queue. User approves at 13:32.</div>
-      </div>
-      <span class="badge b-red" style="margin-left:auto;flex-shrink:0">approved</span>
-    </div>
-    <div class="flow-step" style="border-color:rgba(26,173,26,.2)">
-      <span class="flow-step-lbl">Broker</span>
-      <div>
-        <div class="flow-step-title">Trade placed via Market Tooling</div>
-        <div class="flow-step-desc"><code>place_order</code> called: BUY 11 ONGC MARKET (close short). Order filled at ₹271.75. Order ID 341260311280802.</div>
-      </div>
-      <span class="badge b-green" style="margin-left:auto;flex-shrink:0">filled</span>
-    </div>
-    <div class="flow-step">
-      <span class="flow-step-lbl">Learnings</span>
-      <div>
-        <div class="flow-step-title">Trade record written with agent reasoning</div>
-        <div class="flow-step-desc">Immutable entry created: symbol, quantity, price, Playbook ID, and the full exit reasoning at the moment of decision. Tagged to Aggressive Alpha. Available for end-of-day review.</div>
-      </div>
-      <span class="badge b-orange" style="margin-left:auto;flex-shrink:0">logged</span>
     </div>
   </div>
 
