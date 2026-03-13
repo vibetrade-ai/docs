@@ -11,10 +11,6 @@ It's designed as an **experience** first. Talk to the agent, watch it reason in 
 ## Install and run
 
 ```bash
-# Install globally via npm
-npm install -g vibe-trade
-
-# Start the app
 vibetrade
 ```
 

@@ -26,11 +26,6 @@ The result is a trading agent you can give a strategy to in plain English — an
 
 ## Quick start
 
-```bash
-npm install -g vibe-trade
-vibe-trade start
-```
-
-Open [http://localhost:3000](http://localhost:3000) and connect your Dhan account at `/settings`.
+→ [GitHub: vibetrade-ai/vibe-trade](https://github.com/vibetrade-ai/vibe-trade)
 
 → [Full example app guide](example-app.md)
